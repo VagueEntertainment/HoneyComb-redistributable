@@ -442,8 +442,8 @@ def image_retrieval(url):
             os.mkdir(cachedir)
     
     filename = url.split("/")[-1]
-    if os.path.exists(cachedir+"/"+filename):
-        opened = open(cachedir+"/"+filename,"rb")
+    if os.path.exists(cachedir+"/"+str(filename)):
+        opened = open(cachedir+"/"+str(filename),"rb")
         o = opened.read()
         opened.close()
         return(o)

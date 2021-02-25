@@ -361,6 +361,8 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 				emit_signal("honeycomb_returns","history",[body.get_string_from_ascii()])
 			"wallet":
 				emit_signal("honeycomb_returns","wallet",[body.get_string_from_ascii()])
+			"cache":
+				emit_signal("honeycomb_returns","cache",body)
 			_:
 				emit_signal("honeycomb_returns",request_type,[body.get_string_from_ascii()])
 				
