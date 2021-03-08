@@ -22,7 +22,7 @@ timeoffset = 3
 def launch_html():
     
     subprocess.DETACHED_PROCESS = True
-    HTML_PROCESS = subprocess.Popen(['./honeycomb_service_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_service_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print("Process Launched")
 
     return HTML_PROCESS

@@ -311,15 +311,19 @@ func set_hive_engine_tokens(data):
 	hive_engine_tokens = parse_json(data)["honeycomb"]["hive_engine"]["tokens"]
 
 func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,request_type,object):
+	#print(response_code," ",request_type)
 	if response_code == 0:
 		if request_type == "check":
 			emit_signal("honeycomb_returns","service",["stopped"])
-			check_for_service()
+			OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+			if $service_check.is_stopped():
+				$service_check.start()
 		
 	if response_code == 200:
 		match request_type:
 			"check":
 				emit_signal("honeycomb_returns","service",["running"])
+				$service_check.stop()
 				get_settings()
 				get_hive_engine_tokens()
 				hive_get_dynamic_props()
@@ -368,4 +372,10 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 				
 		object.queue_free()		
 	
+	pass # Replace with function body.
+
+
+func _on_service_check_timeout():
+	check_for_service()
+	print("checking for service")
 	pass # Replace with function body.
