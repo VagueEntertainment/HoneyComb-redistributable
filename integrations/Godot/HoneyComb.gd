@@ -128,8 +128,11 @@ func get_nft(source,app,account,opts = []):
 	var message = ""
 	if source == "hive-engine":
 		if app == "nftshowroom":
-			message = 'msg={"act":["get_nftshowroom_art"],"account":"'+account+'","type":["'+opts[0]+'"]}'
-
+			var command = {"act":["get_nftshowroom_art"],
+							"account":account,
+							"type":opts
+						}
+			message = 'msg='+to_json(command)
 	add_child(check)
 	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",[app,check])
 	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,message)
@@ -317,6 +320,7 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 			emit_signal("honeycomb_returns","service",["stopped"])
 			OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 			if $service_check.is_stopped():
+				$service_check.wait_time +=2
 				$service_check.start()
 		
 	if response_code == 200:
@@ -329,8 +333,8 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 				hive_get_dynamic_props()
 				
 			"get_settings":
-				emit_signal("honeycomb_returns","honeycomb_settings",[body.get_string_from_ascii()])
 				settings = parse_json(body.get_string_from_ascii())["honeycomb"]["settings"]
+				emit_signal("honeycomb_returns","honeycomb_settings",[body.get_string_from_ascii()])
 				check_client_registration(settings["hiveaccount"])
 			"check_registration":
 				set_location()
@@ -377,5 +381,5 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 
 func _on_service_check_timeout():
 	check_for_service()
-	print("checking for service")
+	#print("checking for service")
 	pass # Replace with function body.

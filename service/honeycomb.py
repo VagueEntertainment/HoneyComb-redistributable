@@ -92,7 +92,7 @@ def gather_dynamic_props(update = False):
     exists = DataBase.check_latest("honeycomb","misc",["SEARCH_KEY",'hive_dgp'])
     if exists["honeycomb"]["data"] == -1 or update == True:
         dynamic_ops = Hive.get_dynamic_global_properties()
-        print(dynamic_ops)
+        #print(dynamic_ops)
         DataBase.add_misc(["hive_dgp",dynamic_ops,"global"])
    
     

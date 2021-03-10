@@ -59,9 +59,9 @@ def message(interface,data):
         
             elif a == "add_account" and interface == "service":
                 wallet = Hive.import_account(from_client["account"],from_client["keys"])
-                print(wallet)
+                #print(wallet)
                 profile = Hive.get_from_hive(["profile"],from_client["account"],[])
-                print(profile)
+               # print(profile)
                 if wallet["wallet"] == "imported":
                     Database.set_account_info(from_client["account"],"profile",json.dumps(profile["profile"]))
                     
@@ -99,6 +99,7 @@ def message(interface,data):
                 response["honeycomb"]["hive_engine"] = Hive_Engine.find_on_hive_engine(from_client["query"],from_client["token"],from_client["opt"])
             elif a == "get_nftshowroom_art" and interface == "service":
                 response["honeycomb"]["hive_engine"] = {"nftshowroom":Hive_Engine.get_nftshowroom_art(from_client["account"],from_client["type"])}
+                #print(response)
             elif a == "get_from_hive_engine" and interface == "service":
                 if "params" in from_client.keys():
                     types = from_client["params"]["get_from_hive_engine"]

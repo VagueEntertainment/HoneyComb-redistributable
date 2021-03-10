@@ -106,7 +106,7 @@ def claim_hive_rewards(accountname,rewardtype):
         if settings["hiveaccount"] == accountname:
             hive_unlock_wallet()
             balance = get_from_hive(["balances"],accountname)["balances"]["rewards"]
-            print(balance)
+            #print(balance)
             reward_hive = balance["HIVE"]
             reward_hbd = balance["HBD"]
             reward_vests = balance["VESTS"]

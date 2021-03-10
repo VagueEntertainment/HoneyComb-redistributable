@@ -22,7 +22,7 @@ def find_on_hive_engine(query, symbol, m):
     j = {'jsonrpc':'2.0', 'id':1, 'method':m, 'params':params}
 
     with requests.post(url, json=j) as r:
-        print(r.text)
+       # print("From find on hive engine ",r.text)
         data = r.json()
     return data['result']
 
@@ -35,12 +35,15 @@ def get_nftshowroom_art(accountname,col_type):
     for a in art:
         with requests.get(url+a["properties"]["artSeries"]) as r:
             data = r.json()
-            if col_type[0] == "gallery":
-                if data["creator"] == accountname:
-                   returns.append(data)
-            elif col_type[0] == "collection":
-                if data["creator"] != accountname:
-                    returns.append(data)
+            for col in col_type:
+                print(col)
+                print(data)
+                if "gallery" == col:
+                    if data["creator"] == accountname:
+                        returns.append(data)
+                if "collection" == col:
+                    if data["creator"] != accountname:
+                        returns.append(data)
     return returns
     
 def get_hive_tokens_info():
