@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import subprocess
 import sys
@@ -16,16 +16,24 @@ import honeycomb_hive as Hive
 settings = Settings.get_settings()
 
 HTML_PROCESS = ''
+WebSocket_PROCESS = ''
 uptime = 0
 timeoffset = 3
 
 def launch_html():
     
     subprocess.DETACHED_PROCESS = True
-    HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_service_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print("Process Launched")
 
     return HTML_PROCESS
+
+def launch_WebSocket():
+    subprocess.DETACHED_PROCESS = True
+    WebSocket_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print("Process Launched")
+
+    return WebSocket_PROCESS
 
 def honeycomb_update(account = settings["hiveaccount"]):
 
@@ -99,11 +107,15 @@ def gather_dynamic_props(update = False):
 while True:
     uptime +=30
     DataBase.create_db()
-    if HTML_PROCESS == '':
+    if HTML_PROCESS == '' or WebSocket_PROCESS == '':
         print("Launching Process")
         HTML_PROCESS = launch_html()
         print(HTML_PROCESS.pid)
+        WebSocket_PROCESS = launch_WebSocket()
+        print(WebSocket_PROCESS)
     else:
+        print(WebSocket_PROCESS.stderr)
+        print(HTML_PROCESS.stderr)
         honeycomb_update()
         if timeoffset == 3:
             gather_dynamic_props(True)
@@ -122,8 +134,6 @@ while True:
                 for a in accounts.keys():
                     gather_profile_data(a,True)
            
-           
-    
     time.sleep(timeoffset)
         
 

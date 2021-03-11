@@ -35,4 +35,4 @@ def index():
 			return Core.message("service",themessage)
 
 print("Started")
-run(host='127.0.0.1', port=8670)
+run(host='0.0.0.0', port=8670)

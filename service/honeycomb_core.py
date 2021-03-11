@@ -30,7 +30,7 @@ def message(interface,data):
         return json.dumps({"honeycomb":{"code":101,"msg":"messages must be in json formated string"}})
     else:
         act = from_client["act"]
-        response ={"honeycomb":{"code":200}}
+        response ={"honeycomb":{"code":200,"type":from_client["type"]}}
         for a in act:
         
         # From local stores
@@ -50,7 +50,7 @@ def message(interface,data):
         # Database functions
         
             if a == "get_history" and interface == "service":
-                response["honeycomb"]["database"] = Database.get_from_history(from_client["type"],from_client["account"])
+                response["honeycomb"]["database"] = Database.get_from_history(from_client["opts"],from_client["account"])
            
             elif a == "get_app_data" and interface == "service":
                 response["honeycomb"]["database"] = Database.get_from_app()
@@ -73,7 +73,7 @@ def message(interface,data):
                     types = from_client["params"]["get_account"]
                     response["honeycomb"]["database"] = Database.get_from_account(from_client["account"],types)
                 else:
-                    response["honeycomb"]["database"] = Database.get_from_account(from_client["account"],from_client["type"])
+                    response["honeycomb"]["database"] = Database.get_from_account(from_client["account"],from_client["opts"])
             
         # Direct from Hive
         
@@ -86,26 +86,26 @@ def message(interface,data):
                     types = from_client["params"]["get_from_hive"]
                     response["honeycomb"]["hive"] = Hive.get_from_hive(types,from_client["account"],from_client["opts"])
                  else:
-                    response["honeycomb"]["hive"] = Hive.get_from_hive(from_client["type"],from_client["account"],from_client["opts"])
+                    response["honeycomb"]["hive"] = Hive.get_from_hive(from_client["opts"],from_client["account"],from_client["opts"])
             elif a == "get_hive_dynamic_props" and interface == "service":
                 #response = Hive.get_dynamic_global_properties()
                 response["honeycomb"]["hive"] = Database.get_from_misc(['hive_dgp'])
             elif a == "claim_hive_rewards" and interface == "service":
-                response["honeycomb"]["hive"] = Hive.claim_hive_rewards(from_client["account"],from_client["type"])
+                response["honeycomb"]["hive"] = Hive.claim_hive_rewards(from_client["account"],from_client["opts"])
             
         # Direct from Hive Engine
         
             elif a == "hive_engine_search" and interface == "service":
                 response["honeycomb"]["hive_engine"] = Hive_Engine.find_on_hive_engine(from_client["query"],from_client["token"],from_client["opt"])
             elif a == "get_nftshowroom_art" and interface == "service":
-                response["honeycomb"]["hive_engine"] = {"nftshowroom":Hive_Engine.get_nftshowroom_art(from_client["account"],from_client["type"])}
+                response["honeycomb"]["hive_engine"] = {"nftshowroom":Hive_Engine.get_nftshowroom_art(from_client["account"],from_client["opts"])}
                 #print(response)
             elif a == "get_from_hive_engine" and interface == "service":
                 if "params" in from_client.keys():
                     types = from_client["params"]["get_from_hive_engine"]
                     response["honeycomb"]["hive_engine"]= Hive_Engine.get_from_hive_engine(types,from_client["account"])
                 else:
-                    response["honeycomb"]["hive_engine"]= Hive_Engine.get_from_hive_engine(from_client["type"],from_client["account"])
+                    response["honeycomb"]["hive_engine"]= Hive_Engine.get_from_hive_engine(from_client["opts"],from_client["account"])
         
         # HoneyComb Specific
             
