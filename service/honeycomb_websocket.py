@@ -10,8 +10,10 @@ import os
 import honeycomb_core as Core
 
 async def to_core(websocket, path):
+   
     async for message in websocket:
         themessage = message.decode()
+        print(themessage)
         #await websocket.send(themessage.encode("utf8"))
         if themessage.find("msg=") !=-1:
             appId = themessage.split("msg=")[1].split("<::>")[0]
@@ -29,7 +31,12 @@ async def to_core(websocket, path):
                 await websocket.send(str('{"server":"error incomplete message"}').encode("utf8"))
         else:
             if themessage != None:
-                    await websocket.send(Core.message("service",themessage).encode("utf8"))
+                    jsoned = json.loads(themessage)
+                    if jsoned["act"][0] != "image_retrieval":
+                        msg = Core.message("service",themessage).encode("utf8")
+                        await websocket.send(msg)
+                    else:
+                        await websocket.send(Core.message("service",themessage))
 
-asyncio.get_event_loop().run_until_complete(websockets.serve(to_core, '0.0.0.0', 8671))
+asyncio.get_event_loop().run_until_complete(websockets.server.serve(to_core, '0.0.0.0', 8671,max_size=1048576))
 asyncio.get_event_loop().run_forever()
