@@ -20,6 +20,7 @@ var dir = Directory.new()
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	check_for_service()
+	
 	websocket.connect("connection_closed", self, "_closed")
 	websocket.connect("connection_error", self, "_closed")
 	websocket.connect("connection_established", self, "_connected")
@@ -52,24 +53,40 @@ func _on_data():
 	# Print the received packet, you MUST always use get_peer(1).get_packet
 	# to receive data from server, and not get_packet directly when not
 	# using the MultiplayerAPI.
-	var data = websocket.get_peer(1).get_packet().get_string_from_utf8()
+	var data = websocket.get_peer(1).get_packet()
+	var parse_utf8 = data.get_string_from_utf8()
 	#print("Got data from server: ", data)
-	var jsoned = parse_json(data)
-	match jsoned["honeycomb"]["type"]:
-		"check":
+	if len(parse_utf8) > 0:
+		var jsoned = parse_json(parse_utf8)
+		#print(jsoned.keys())
+		match jsoned["honeycomb"]["type"]:
+			"check":
 				emit_signal("honeycomb_returns","service",["running"])
 				$service_check.stop()
 				get_settings()
-				#get_hive_engine_tokens()
-				#hive_get_dynamic_props()
-		"get_settings":
-			settings = jsoned["honeycomb"]["settings"]
-			emit_signal("honeycomb_returns","honeycomb_settings",[jsoned])
-			#check_client_registration(settings["hiveaccount"])
-		_: 
-			emit_signal("honeycomb_returns",jsoned["honeycomb"]["type"],[data])
+				hive_get_dynamic_props()
+				get_hive_engine_tokens()
+				
+			"get_settings":
+				settings = jsoned["honeycomb"]["settings"]
+				emit_signal("honeycomb_returns","honeycomb_settings",[jsoned])
+				check_client_registration(settings["hiveaccount"])
+			"check_registration":
+				set_location()
+				emit_signal("honeycomb_returns","honeycomb_registration_status",[data])
+			"hive_dynamic_props":
+				dynamic_props = parse_json(parse_utf8)["honeycomb"]["hive"]["misc"]["hive_dgp"]["data"]
+			"hive_engine_tokens":
+				set_hive_engine_tokens(parse_utf8)
+			"cache":
+				#print("cache returned")
+				#print(typeof(data))
+				emit_signal("honeycomb_returns","cache",data)
+			_:  
+				#print(jsoned["honeycomb"]["type"])
+				emit_signal("honeycomb_returns",jsoned["honeycomb"]["type"],[parse_utf8])
 
-func websocket_returns(data):
+func websocket_returns(_data):
 	print("websocket did something")
 	print(websocket.poll())
 	pass
@@ -83,6 +100,7 @@ func check_for_service():
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["check",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["check_settings"]}')
 		2:
+			websocket.set_buffers(1048576,1048576,1048576,1048576)
 			print("Using Web Sockets")
 			var err = websocket.connect_to_url("ws://0.0.0.0:8671")
 			if err !=OK:
@@ -92,9 +110,9 @@ func check_for_service():
 	
 func check_client_registration(account):
 	var msg = {
-				act = ["registration_check"],
-				account = account,
-				type ="check_registration"
+				"act":["registration_check"],
+				"account":account,
+				"type":"check_registration"
 			}
 	match connectionType:
 		1:
@@ -108,9 +126,9 @@ func check_client_registration(account):
 	
 func set_location():
 	var msg = {
-			act = ["update_loc"],
-			appname = "com.vagueentertainment.honeycomb",
-			type = "location"
+			"act":["update_loc"],
+			"appname":"com.vagueentertainment.honeycomb",
+			"type":"location"
 		}
 	match connectionType:
 		1:
@@ -131,8 +149,8 @@ func launch_service():
 	
 func get_settings():
 	var msg = {
-				act = ["get_settings"],
-				type ="get_settings"
+				"act":["get_settings"],
+				"type":"get_settings"
 			}
 	match connectionType:
 		1:
@@ -154,9 +172,9 @@ func login(_name,_password):
 
 func add_account(account,keys):
 	var msg = {
-					act = ["add_account"],
-					account = account,
-					keys = [keys["posting"]+'","'+keys["active"]]
+					"act":["add_account"],
+					"account":account,
+					"keys":[keys["posting"]+'","'+keys["active"]]
 				}
 	match connectionType:
 		1:
@@ -174,8 +192,8 @@ func add_account(account,keys):
 
 func list_accounts():
 	var msg = {
-				act = ["get_accounts"],
-				type = "get_accounts"
+				"act":["get_accounts"],
+				"type":"get_accounts"
 				}
 	match connectionType:
 		1:
@@ -236,7 +254,8 @@ func get_nft(source,app,account,opts = []):
 			var message = ""
 			if source == "hive-engine":
 				if app == "nftshowroom":
-					var command = {"act":["get_nftshowroom_art"],
+					var command = {
+							"act":["get_nftshowroom_art"],
 							"account":account,
 							"opts":opts,
 							"type":app
@@ -248,7 +267,8 @@ func get_nft(source,app,account,opts = []):
 		2:
 			if source == "hive-engine":
 				if app == "nftshowroom":
-					var command = {"act":["get_nftshowroom_art"],
+					var command = {
+							"act":["get_nftshowroom_art"],
 							"account":account,
 							"opts":opts,
 							"type":app
@@ -272,160 +292,326 @@ func ipfs_get(_id):
 	pass
 	
 func cache_img(img):
+	var msg = {
+		"act":["image_retrieval"],
+		"url":img,
+		"type":"cache"
+		}
+	#match connectionType:
+		#1:
 	var check = HTTPRequest.new()
 	check.set_timeout(10)
 	check.use_threads = true
 	add_child(check)
-	var fullurl = 'msg={"act":["image_retrieval"],"url":"'+img+'"}'
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["cache",check])
-	check.request("http://127.0.0.1:8670/",[],true,HTTPClient.METHOD_POST,fullurl)
+	var fullurl = 'msg='+to_json(msg)
+	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["cache"+str(img),check])
+	check.request("http://0.0.0.0:8670/",[],true,HTTPClient.METHOD_POST,fullurl)
+		#2:
+		#	websocket_transfer.put_packet(to_json(msg).to_utf8())
+		#	pass
+	
 	pass
 	
 ### Hive General Functions
 
 func claim_hive_rewards(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["claim_hive_rewards",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["claim_hive_rewards"],"account":"'+account+'","type":["all"]}')
+	var msg = {
+				"act":["claim_hive_rewards"],
+				"account":account,
+				"opts":["all"],
+				"type":"claim_hive_rewards"
+				}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["claim_hive_rewards",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg=')
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			pass
 	pass
 
 func load_wallet(account = settings["hiveaccount"]):
 	print("from Load wallet ",account)
-	var check = HTTPRequest.new()
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet",check])
 	var msg = {
 		"act":["get_account","get_from_hive","get_from_hive_engine"],
 		"account":account,
 		"params":{"get_account":["profile","followers","following","balances","delegation"],"get_from_hive":["voting_power","RC"],"get_from_hive_engine":["balance"]},
-		"opts": []
+		"opts": [],
+		"type":"wallet"
 	}
-	#check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_account"],"account":"'+settings["hiveaccount"]+'","type":["profile","followers","following","balances","delegation"]}')
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			pass
 	pass
 
 func get_followers(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["followers",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_account"],"account":"'+account+'","type":["followers"],"opts":[]}')
+	var msg = {
+				"act":["get_account"],
+				"account":account,
+				"opts":["followers"],
+				"type":"followers"}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["followers",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			pass
 	pass
 
 func get_following(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["following",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_account"],"account":"'+account+'","type":["following"],"opts":[]}')
+	var msg = {
+		"act":["get_account"],
+		"account":account,
+		"opts":["following"],
+		"type":"following"
+	}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["following",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg=')
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 func get_profile(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["profile",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_account"],"account":"'+account+'","type":["profile"],"opts":[]}')
+	var msg = {
+		"act":["get_account"],
+		"account":account,
+		"type":"profile",
+		"opts":["profile"]}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["profile",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+	
 	pass
 
 func get_from_hive(type,account):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_"+type,check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_from_hive"],"account":"'+account+'","type":["'+type+'"],"opts":[]}')
+	var msg = {
+				"act":["get_from_hive"],
+				"account":account,
+				"type":"hive_"+type,
+				"opts":[type]
+				}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_"+type,check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+	
 	pass
 	
 func hive_get_vp(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_vp",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_from_hive"],"account":"'+account+'","type":["voting_power"],"opts":[]}')
+	var msg = {
+				"act":["get_from_hive"],
+				"account":account,
+				"type":"hive_vp",
+				"opts":["voting_power"]
+				}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_vp",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+	
 	pass
 
 func hive_get_RC(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rc",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_from_hive"],"account":"'+account+'","type":["RC"],"opts":[]}')
+	var msg = {
+				"act":["get_from_hive"],
+				"account":account,
+				"type":"hive_rc",
+				"opts":["RC"]
+				}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rc",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+	
 	pass
 	
 func hive_get_delegation(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
+	var msg = {
+		"act":["get_account"],
+		"account":account,
+		"type":"hive_delegation",
+		"opts":["delegation"]
+		}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_delegation",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_delegation",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_account"],"account":"'+account+'","type":["delegation"],"opts":[]}')
 	pass
 	
 func get_balance(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_balances",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_account"],"account":"'+account+'","type":["balances"],"opts":[]}')
+	var msg = {
+				"act":["get_account"],
+				"account":account,
+				"opts":["balances"],
+				"type":"hive_balances"
+				}
+	
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_balances",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
 func hive_get_rewards(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rewards",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_from_hive"],"account":"'+account+'","type":["balances"],"opts":[]}')
+	var msg = {
+				"act":["get_from_hive"],
+				"account":account,
+				"opts":["balances"],
+				"type":"hive_rewards"}
+				
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rewards",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
 func hive_get_dynamic_props():
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_dynamic_props",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_hive_dynamic_props"]}')
+	var msg = {
+		"act":["get_hive_dynamic_props"],
+		"type":"hive_dynamic_props"
+	}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_dynamic_props",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			
 	pass
 
 
 func get_history(author,history_type,return_type = "history"):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(10)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",[return_type,check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_history"],"account":"'+author+'","type":["'+history_type+'"],"opts":[]}')
+	var msg = {
+		"act":["get_history"],
+		"account":author,
+		"opts":[history_type],
+		"type":return_type
+	}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",[return_type,check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 ### Hive Engine
 
 func get_hive_engine_tokens():
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(2)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_tokens",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_from_hive_engine"],"account":"","type":["tokens"]}')
+	var msg = {
+		"act":["get_from_hive_engine"],
+		"account":"",
+		"opts":["tokens"],
+		"type":"hive_engine_tokens"
+	}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(2)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_tokens",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 func get_hive_engine_balance(account = settings["hiveaccount"]):
-	var check = HTTPRequest.new()
-	#check.use_threads = true
-	check.set_timeout(2)
-	add_child(check)
-	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_balance",check])
-	check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg={"act":["get_from_hive_engine"],"account":"'+account+'","type":["balance"]}')
+	var msg = {
+		"act":["get_from_hive_engine"],
+		"account":account,
+		"opts":["balance"],
+		"type":"hive_engine_balance"
+	}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			#check.use_threads = true
+			check.set_timeout(2)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_balance",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			
 	pass
 	
 func set_hive_engine_tokens(data):
@@ -487,10 +673,11 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 				emit_signal("honeycomb_returns","history",[body.get_string_from_ascii()])
 			"wallet":
 				emit_signal("honeycomb_returns","wallet",[body.get_string_from_ascii()])
-			"cache":
-				emit_signal("honeycomb_returns","cache",body)
 			_:
-				emit_signal("honeycomb_returns",request_type,[body.get_string_from_ascii()])
+				if request_type.substr(0,5) == "cache":
+					emit_signal("honeycomb_returns",request_type,body)
+				else:
+					emit_signal("honeycomb_returns",request_type,[body.get_string_from_ascii()])
 				
 		object.queue_free()		
 	
