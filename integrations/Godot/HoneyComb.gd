@@ -5,7 +5,7 @@ extends Node
 # var a = 2
 # var b = "text"
 signal honeycomb_returns(return_type,data)
-signal loading()
+#signal loading()
 
 var websocket = WebSocketClient.new()
 var websocket_transfer
