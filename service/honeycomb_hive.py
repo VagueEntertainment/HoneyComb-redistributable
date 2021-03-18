@@ -106,11 +106,11 @@ def claim_hive_rewards(accountname,rewardtype):
         if settings["hiveaccount"] == accountname:
             hive_unlock_wallet()
             balance = get_from_hive(["balances"],accountname)["balances"]["rewards"]
-            #print(balance)
+            print(balance)
             reward_hive = balance["HIVE"]
             reward_hbd = balance["HBD"]
             reward_vests = balance["VESTS"]
-            if rewardtype == "all":
+            if rewardtype[0] == "all":
                 hive.Hive().claim_reward_balance(str(reward_hive)+" HIVE", str(reward_hbd)+" HBD", str(reward_vests)+" VESTS", accountname)
             
             hive_lock_wallet()
@@ -149,20 +149,23 @@ def get_dynamic_global_properties():
     
 def get_from_hive(data_type,accountname,opts = []):
     response = {}
-    if hive_init() == True:
-        for data in data_type:
-            if data == "balances":balance = {"balances":account.Account(accountname).get_balances()};response.update({"balances":account.Account(accountname).get_balances()})
-            if data == "voting_power":response.update({"vp":account.Account(accountname).voting_power()})
-            if data == "reputation":response.update({"rep":account.Account(accountname).reputation()})
-            if data == "followers":response.update({"followers":account.Account(accountname).get_followers()})
-            if data == "following":response.update({"following":account.Account(accountname).get_following()})
-            if data == "rewards":response.update({"rewards":{"HIVE":account.Account(accountname)["reward_hive_balance"],"HBD":account.Account(accountname)["reward_hbd_balance"],"HP":account.Account(accountname)["reward_vesting_hive"]}})
-            if data == "profile":response.update({"profile":account.Account(accountname).profile})
-            if data == "full_account":response.update({"account":account.Account(accountname)})
-            if data == "history":response.update({"history":hived.Hived().get_account_history(accountname,opts[0],opts[1])})
-            if data == "RC":response.update(calculate_RC(accountname))
-            if data == "delegation":response.update(calculate_delegation(accountname))
-            if data == "hivebuzz":response.update({"hivebuzz":hive_buzz_achievements()})
+    try:
+        if hive_init() == True:
+            for data in data_type:
+                if data == "balances":balance = {"balances":account.Account(accountname).get_balances()};response.update({"balances":account.Account(accountname).get_balances()})
+                if data == "voting_power":response.update({"vp":account.Account(accountname).voting_power()})
+                if data == "reputation":response.update({"rep":account.Account(accountname).reputation()})
+                if data == "followers":response.update({"followers":account.Account(accountname).get_followers()})
+                if data == "following":response.update({"following":account.Account(accountname).get_following()})
+                if data == "rewards":response.update({"rewards":{"HIVE":account.Account(accountname)["reward_hive_balance"],"HBD":account.Account(accountname)["reward_hbd_balance"],"HP":account.Account(accountname)["reward_vesting_hive"]}})
+                if data == "profile":response.update({"profile":account.Account(accountname).profile})
+                if data == "full_account":response.update({"account":account.Account(accountname)})
+                if data == "history":response.update({"history":hived.Hived().get_account_history(accountname,opts[0],opts[1])})
+                if data == "RC":response.update(calculate_RC(accountname))
+                if data == "delegation":response.update(calculate_delegation(accountname))
+                if data == "hivebuzz":response.update({"hivebuzz":hive_buzz_achievements()})
+    except:
+        response.update({"connection":"error"})
     
     return response
 

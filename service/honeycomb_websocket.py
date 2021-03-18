@@ -13,7 +13,7 @@ async def to_core(websocket, path):
    
     async for message in websocket:
         themessage = message.decode()
-        print(themessage)
+        #print(themessage)
         #await websocket.send(themessage.encode("utf8"))
         if themessage.find("msg=") !=-1:
             appId = themessage.split("msg=")[1].split("<::>")[0]

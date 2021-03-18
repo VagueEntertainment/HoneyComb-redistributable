@@ -6,6 +6,7 @@ import os
 import json
 import time
 import requests
+import asyncio
 
 sys.path.append("..")
 
@@ -23,14 +24,14 @@ timeoffset = 3
 def launch_html():
     
     subprocess.DETACHED_PROCESS = True
-    HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
     print("Process Launched")
 
     return HTML_PROCESS
 
 def launch_WebSocket():
     subprocess.DETACHED_PROCESS = True
-    WebSocket_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    WebSocket_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
     print("Process Launched")
 
     return WebSocket_PROCESS
@@ -51,17 +52,17 @@ def honeycomb_update(account = settings["hiveaccount"]):
     lastchain = Hive.get_transaction_count(account)
       
     if lastrecord < lastchain:
-       # print("running update")
+        print("running update")
         if lastrecord == -1:
-           # print("first time, building complete index")
+            print("first time, building complete index")
             for i in Hive.get_history(account,-1): 
                 DataBase.add_history(i)
         else:
-           # print("updating the database by",lastchain-lastrecord,"records")
+            print("updating the database by",lastchain-lastrecord,"records")
             for i in Hive.get_history(account,lastchain-lastrecord):
-                #print("On Hive",i[0])
+                print("On Hive",i[0])
                 latest = DataBase.check_latest("honeycomb","history")["honeycomb"]["data"]
-               #print("In Database",latest)
+                print("In Database",latest)
                 if i[0] > latest:
                     DataBase.add_history(i)
        
@@ -83,7 +84,9 @@ def gather_profile_data(account = settings["hiveaccount"], update = False):
         available = balances["balances"]['available']
         savings = balances["balances"]['savings']
         
-        #print(available)
+        print(account)
+        print(update)
+        print(available)
         
         DataBase.set_account_info(account,"HBD",json.dumps({"available":available["HBD"],"savings":savings["HBD"]}))
         DataBase.set_account_info(account,"HIVE",json.dumps({"available":available["HIVE"],"savings":savings["HIVE"]}))
@@ -103,38 +106,43 @@ def gather_dynamic_props(update = False):
         #print(dynamic_ops)
         DataBase.add_misc(["hive_dgp",dynamic_ops,"global"])
    
-    
-while True:
-    uptime +=30
-    DataBase.create_db()
-    if HTML_PROCESS == '' or WebSocket_PROCESS == '':
-        print("Launching Process")
-        HTML_PROCESS = launch_html()
-        print(HTML_PROCESS.pid)
-        WebSocket_PROCESS = launch_WebSocket()
-        print(WebSocket_PROCESS)
-    else:
-        print(WebSocket_PROCESS.stderr)
-        print(HTML_PROCESS.stderr)
+try:
+    while True:
+       uptime +=30
+       DataBase.create_db()
+       if HTML_PROCESS == '' or WebSocket_PROCESS == '':
+            print("Launching Process")
+            #HTML_PROCESS = launch_html()
+            HTML_PROCESS = 1
+            #print(HTML_PROCESS.pid)
+            #WebSocket_PROCESS = launch_WebSocket()
+            WebSocket_PROCESS = 2
+            #print(WebSocket_PROCESS.pid)
+       else:
         honeycomb_update()
         if timeoffset == 3:
-            gather_dynamic_props(True)
-            accounts = DataBase.get_accounts()
-            for a in accounts.keys():
-                gather_profile_data(a,True)
-            timeoffset = 300
+          gather_dynamic_props(True)
+          accounts = DataBase.get_accounts()
+          for a in accounts.keys():
+             gather_profile_data(a,True)
+             timeoffset = 300
         else:
             if uptime % 240 == 0:
-                print("Updating Dynamic Props")
-                gather_dynamic_props(True)
+               print("Updating Dynamic Props")
+               gather_dynamic_props(True)
            
             elif uptime % 60 == 0:
-                print("Updating Profile")
-                accounts = DataBase.get_accounts()
-                for a in accounts.keys():
-                    gather_profile_data(a,True)
+               print("Updating Profile")
+               accounts = DataBase.get_accounts()
+               for a in accounts.keys():
+                   gather_profile_data(a,True)
            
-    time.sleep(timeoffset)
+       time.sleep(timeoffset)
+       
+except KeyboardInterrupt:
+        #os.kill(HTML_PROCESS,signal.SIGKILL)
+        #os.kill(WebSocket_PROCESS,signal.SIGKILL)
+        sys.exit()
         
 
 
