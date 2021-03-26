@@ -111,13 +111,13 @@ try:
        uptime +=30
        DataBase.create_db()
        if HTML_PROCESS == '' or WebSocket_PROCESS == '':
-            print("Launching Process")
-            #HTML_PROCESS = launch_html()
-            HTML_PROCESS = 1
-            #print(HTML_PROCESS.pid)
+           # print("Launching Process")
+           # HTML_PROCESS = launch_html()
+           HTML_PROCESS = 1
+           #print(HTML_PROCESS.pid)
             #WebSocket_PROCESS = launch_WebSocket()
-            WebSocket_PROCESS = 2
-            #print(WebSocket_PROCESS.pid)
+           WebSocket_PROCESS = 2
+           #print(WebSocket_PROCESS.pid)
        else:
         honeycomb_update()
         if timeoffset == 3:
@@ -140,8 +140,8 @@ try:
        time.sleep(timeoffset)
        
 except KeyboardInterrupt:
-        #os.kill(HTML_PROCESS,signal.SIGKILL)
-        #os.kill(WebSocket_PROCESS,signal.SIGKILL)
+       # os.kill(HTML_PROCESS,signal.SIGKILL)
+      #  os.kill(WebSocket_PROCESS,signal.SIGKILL)
         sys.exit()
         
 

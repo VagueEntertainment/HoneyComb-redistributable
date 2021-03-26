@@ -79,11 +79,8 @@ func _on_data():
 			"hive_engine_tokens":
 				set_hive_engine_tokens(parse_utf8)
 			"cache":
-				#print("cache returned")
-				#print(typeof(data))
 				emit_signal("honeycomb_returns","cache",data)
 			_:  
-				#print(jsoned["honeycomb"]["type"])
 				emit_signal("honeycomb_returns",jsoned["honeycomb"]["type"],[parse_utf8])
 
 func websocket_returns(_data):
@@ -297,8 +294,10 @@ func cache_img(img):
 		"url":img,
 		"type":"cache"
 		}
-	#match connectionType:
-		#1:
+	var ImageType = img.split(".",-1)
+	
+	print(ImageType)
+	
 	var check = HTTPRequest.new()
 	check.set_timeout(10)
 	check.use_threads = true
@@ -306,10 +305,7 @@ func cache_img(img):
 	var fullurl = 'msg='+to_json(msg)
 	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["cache"+str(img),check])
 	check.request("http://0.0.0.0:8670/",[],true,HTTPClient.METHOD_POST,fullurl)
-		#2:
-		#	websocket_transfer.put_packet(to_json(msg).to_utf8())
-		#	pass
-	
+
 	pass
 	
 ### Hive General Functions
