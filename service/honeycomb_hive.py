@@ -49,12 +49,12 @@ def hive_create_wallet():
     else:
         return '{"wallet":"exists"}'
         
-def hive_unlock_wallet():
+def hive_unlock_wallet(hiveaccount):
     settings = Settings.get_settings()
     w.unlock(fix_thy_self,user_passphrase=settings["passphrase"])
     os.environ["UNLOCK"] = settings["passphrase"]
-    postingkey = w().getPostingKeyForAccount('bflanagin')
-    activekey = w().getActiveKeyForAccount('bflanagin')
+    postingkey = w().getPostingKeyForAccount(hiveaccount)
+    activekey = w().getActiveKeyForAccount(hiveaccount)
     hive.Hive(keys=[postingkey, activekey])
     os.environ.unsetenv("UNLOCK")
     if w.created(fix_thy_self):

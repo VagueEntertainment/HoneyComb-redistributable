@@ -111,20 +111,15 @@ try:
        uptime +=30
        DataBase.create_db()
        if HTML_PROCESS == '' or WebSocket_PROCESS == '':
-           # print("Launching Process")
-           # HTML_PROCESS = launch_html()
            HTML_PROCESS = 1
-           #print(HTML_PROCESS.pid)
-            #WebSocket_PROCESS = launch_WebSocket()
            WebSocket_PROCESS = 2
-           #print(WebSocket_PROCESS.pid)
-       else:
-        honeycomb_update()
+       else:    
         if timeoffset == 3:
           gather_dynamic_props(True)
           accounts = DataBase.get_accounts()
           for a in accounts.keys():
              gather_profile_data(a,True)
+             honeycomb_update(a)
              timeoffset = 300
         else:
             if uptime % 240 == 0:
@@ -136,12 +131,11 @@ try:
                accounts = DataBase.get_accounts()
                for a in accounts.keys():
                    gather_profile_data(a,True)
+                   honeycomb_update(a)
            
        time.sleep(timeoffset)
        
 except KeyboardInterrupt:
-       # os.kill(HTML_PROCESS,signal.SIGKILL)
-      #  os.kill(WebSocket_PROCESS,signal.SIGKILL)
         sys.exit()
         
 

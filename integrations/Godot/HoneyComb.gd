@@ -296,7 +296,7 @@ func cache_img(img):
 		}
 	var ImageType = img.split(".",-1)
 	
-	print(ImageType)
+	#print(ImageType)
 	
 	var check = HTTPRequest.new()
 	check.set_timeout(10)

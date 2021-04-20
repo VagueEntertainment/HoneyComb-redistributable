@@ -53,11 +53,16 @@ def save_settings(username,passphrase ="none"):
         
 def get_settings():
     home = os.environ['HOME']
-    if get_platform() == "Linux":
+    settings = {}
+    if get_platform() == "Linux" and check_settings_file() == "found":
         settings_file = open(home+"/.config/HoneyComb/honeycomb_settings.json","r")
         settings = json.loads(settings_file.read())
         settings_file.close()
-        return settings
+        
+    else:
+        settings = {"clientid":generate_client_id(),"hiveaccount":"none","passphrase":"none","gateway_port":8675} 
+    
+    return settings
 
 ### We generate the client id using the mac address of the available nics + the users home directory and name.
 ### This id is used to help route clients to possible private data stores so scrambling the data isn't important 	
