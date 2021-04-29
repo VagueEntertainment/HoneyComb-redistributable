@@ -25,18 +25,18 @@ def launch_html():
     
     subprocess.DETACHED_PROCESS = True
     HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
-    print("Process Launched")
+    print("Html Launched ",HTML_PROCESS.pid)
 
     return HTML_PROCESS
 
 def launch_WebSocket():
     subprocess.DETACHED_PROCESS = True
     WebSocket_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
-    print("Process Launched")
+    print("WebSocket Launched ",WebSocket_PROCESS.pid)
 
     return WebSocket_PROCESS
 
-def honeycomb_update(account = settings["hiveaccount"]):
+def honeycomb_update(account = "none"):
 
     DataBase.create_db()
     # Get the latest recorded transaction for account in database
@@ -54,7 +54,7 @@ def honeycomb_update(account = settings["hiveaccount"]):
     if lastrecord < lastchain:
         print("running update")
         if lastrecord == -1:
-            print("first time, building complete index")
+            print("first time, building complete index, This may take a while")
             for i in Hive.get_history(account,-1): 
                 DataBase.add_history(i)
         else:
@@ -68,7 +68,7 @@ def honeycomb_update(account = settings["hiveaccount"]):
        
     return 1
     
-def gather_profile_data(account = settings["hiveaccount"], update = False):
+def gather_profile_data(account = "none", update = False):
     
     DataBase.create_db()
     userinfo = DataBase.check_latest("honeycomb","account",["ACCOUNT",account])
@@ -109,10 +109,9 @@ def gather_dynamic_props(update = False):
 try:
     while True:
        uptime +=30
-       DataBase.create_db()
        if HTML_PROCESS == '' or WebSocket_PROCESS == '':
-           HTML_PROCESS = 1
-           WebSocket_PROCESS = 2
+           HTML_PROCESS = launch_html()
+           WebSocket_PROCESS = launch_WebSocket()
        else:    
         if timeoffset == 3:
           gather_dynamic_props(True)
@@ -136,7 +135,8 @@ try:
        time.sleep(timeoffset)
        
 except KeyboardInterrupt:
-        sys.exit()
-        
 
+        HTML_PROCESS.kill()
+        WebSocket_PROCESS.kill()
+        sys.exit()
 

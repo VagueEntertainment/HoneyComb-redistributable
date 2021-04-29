@@ -14,8 +14,9 @@ from hive import hived
 sys.path.append("..")
 import honeycomb_settings as Settings
 import honeycomb_hive_engine as Hive_Engine
-w = wallet.Wallet
+w = wallet.Wallet()
 fix_thy_self = wallet.Wallet()
+settings = Settings.get_settings()
 
 def hive_init():
 
@@ -37,81 +38,94 @@ def hive_init():
         return False
     
 ### Wallet commands
+
+def hive_wallet_exists():
+    if not w.created():
+        return {"wallet":"none"}
+    else:
+        return {"wallet":"exists"}
     
-def hive_create_wallet():
-    
-    if not w.created(fix_thy_self):
-        settings = Settings.get_settings()
-        os.environ["UNLOCK"] = settings["passphrase"]
-        w.newWallet(fix_thy_self)
-        os.environ.unsetenv("UNLOCK")
+def hive_create_wallet(passphrase = settings["passphrase"]):
+    if not w.created():
+        os.environ["UNLOCK"] = passphrase
+        w.newWallet()
+        os.environ["UNLOCK"] = ""
+        
         return '{"wallet":"created"}'
     else:
         return '{"wallet":"exists"}'
         
-def hive_unlock_wallet(hiveaccount):
-    settings = Settings.get_settings()
-    w.unlock(fix_thy_self,user_passphrase=settings["passphrase"])
-    os.environ["UNLOCK"] = settings["passphrase"]
-    postingkey = w().getPostingKeyForAccount(hiveaccount)
-    activekey = w().getActiveKeyForAccount(hiveaccount)
-    hive.Hive(keys=[postingkey, activekey])
-    os.environ.unsetenv("UNLOCK")
-    if w.created(fix_thy_self):
-        if not w.locked(fix_thy_self):
-            return('{"wallet":"unlocked"}')
+def hive_unlock_wallet(hiveaccount,passphrase = settings["passphrase"]):
+
+    os.environ["UNLOCK"] = passphrase
+    w.unlock(user_passphrase=passphrase)
+    postingkey = w.getPostingKeyForAccount(hiveaccount)
+    activekey = w.getActiveKeyForAccount(hiveaccount)
+    thekeys = []
+    if postingkey:
+        thekeys.append(postingkey)
+    if activekey:
+        thekeys.append(activekey)
+    hive.Hive(keys=thekeys)
+    os.environ["UNLOCK"] = ""
+    if w.created():
+        if not w.locked():
+            return({"wallet":"unlocked"})
         else:
-            if not w.locked(fix_thy_self):
-                return('{"wallet":"unlocked"}')
+            if not w.locked():
+                return({"wallet":"unlocked"})
             else:
-                return('{"wallet":"failed"}')
+                return({"wallet":"failed"})
     else:
-        return('{"wallet":"error"}')
+        return({"wallet":"error"})
         
 def hive_lock_wallet():
-    if w.created(fix_thy_self):
-        if not w.locked(fix_thy_self):
-            w.lock(fix_thy_self)
+    if w.created():
+        if not w.locked():
+            w.lock()
             hive.Hive(keys=[])
-        return('{"wallet":"locked"}')
+        return({"wallet":"locked"})
     else:
-        return('{"wallet":"error"}')
+        return({"wallet":"error"})
         
-def import_account(accountname,keys=[]):
+def import_account(accountname,keys=[],passphrase = settings["passphrase"]):
     test = []
     returns = {'wallet':'imported'}
-    if w.created(fix_thy_self):
-       unlock = json.loads(hive_unlock_wallet())
+    if w.created():
+       unlock = hive_unlock_wallet(accountname,passphrase)
+      # print("From import_account ",unlock)
+      # print("Adding ",accountname," to Wallet ")
        if unlock["wallet"] == "unlocked":
             settings = Settings.get_settings()
             for key in keys:
-                if w.getAccountFromPrivateKey(fix_thy_self,key) != accountname:
+                #print("From import_account: Verifying ",key, " belongs to ",accountname)
+                if w.getAccountFromPrivateKey(key) != accountname:
                     returns = {'wallet':'error,incorrect account/key combo.'}
                     break
                 else:
                     try:
-                        test.append(w.addPrivateKey(fix_thy_self,key))
+                        test.append(w.addPrivateKey(key))
                     except:
                         pass
+            #returns = {'wallet':{'added':test}}
        else:
             returns = {'wallet':'locked'}
     else:
         returns = {'wallet':'error'}
-    #print(test) 
+    print(returns) 
     return returns
     
-def claim_hive_rewards(accountname,rewardtype):
+def claim_hive_rewards(accountname,passphrase = settings["passphrase"],rewardtype = []  ):
     if hive_init() == True:
         settings = Settings.get_settings()
-        if settings["hiveaccount"] == accountname:
-            hive_unlock_wallet()
-            balance = get_from_hive(["balances"],accountname)["balances"]["rewards"]
-            print(balance)
-            reward_hive = balance["HIVE"]
-            reward_hbd = balance["HBD"]
-            reward_vests = balance["VESTS"]
-            if rewardtype[0] == "all":
-                hive.Hive().claim_reward_balance(str(reward_hive)+" HIVE", str(reward_hbd)+" HBD", str(reward_vests)+" VESTS", accountname)
+        hive_unlock_wallet(accoutname,passphrase)
+        balance = get_from_hive(["balances"],accountname)["balances"]["rewards"]
+        print(balance)
+        reward_hive = balance["HIVE"]
+        reward_hbd = balance["HBD"]
+        reward_vests = balance["VESTS"]
+        if rewardtype[0] == "all":
+            hive.Hive().claim_reward_balance(str(reward_hive)+" HIVE", str(reward_hbd)+" HBD", str(reward_vests)+" VESTS", accountname)
             
             hive_lock_wallet()
             return {"rewards":"claimed"}
@@ -260,7 +274,7 @@ def find_type(accountname,post_type,query = [],limit = -1):
     
     
 def get_history(accountname,limit = -1):
-    
+    print("gettting history for ",accountname)
     settings = Settings.get_settings()
     start = -1
     response = []
@@ -293,8 +307,8 @@ def get_history(accountname,limit = -1):
             elif start > 0:
                 output = get_from_hive(["history"],accountname,[start,start])["history"]
                 
-          #  print("countdown",output[0][0])
-          #  print("complete in ~",((output[0][0] / 1000) * 5) / 60," Minutes")
+            print("countdown",output[0][0])
+            print("complete in ~",((output[0][0] / 1000) * 5) / 60," Minutes")
             for i in output:
                 response.append(i)
                        
@@ -336,13 +350,13 @@ def hive_buzz_achievements(accountname):
 #### To Hive
 
 ### Registers client to the projecthoneycomb account.
-def register_client(account):
+def register_client(account,passphrase = settings["passphrase"]):
     hive_init()
     settings = Settings.get_settings()
     balances = get_from_hive(["balances"],account)
     HBD = balances["available"]["HBD"]
     HIVE = balances["available"]["HIVE"]
-    hive_unlock_wallet()
+    hive_unlock_wallet(accout,passphrase)
     if HIVE > 0.001:
         recipient = "projecthoneycomb"
         amount = 0.001
@@ -358,12 +372,12 @@ def register_client(account):
 
     
 ### To help others find you we update them everytime your public_IP changes. We should move this to the clients p2p features.
-def update_client_loc(account,app="com.vagueentertainment.honeycomb"):
+def update_client_loc(account,passphrase = settings["passphrase"],app = "com.vagueentertainment.honeycomb"):
     hive_init()
     public_IP = requests.get("https://www.wikipedia.org").headers["X-Client-IP"]
     settings = Settings.get_settings()
     custom_json = {"ip":public_IP,"timestamp":time.time(),"clientid":settings["clientid"],"app":app}
-    wallet = json.loads(hive_unlock_wallet())
+    wallet = json.loads(hive_unlock_wallet(accout,passphrase))
     if wallet["wallet"] == "unlocked":
         points = find_connection_point(account,app)
         same_ip = False

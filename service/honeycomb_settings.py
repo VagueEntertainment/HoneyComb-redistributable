@@ -34,16 +34,18 @@ def check_settings_file():
 ### Windows
 ### Mac
 	
-def save_settings(username,passphrase ="none"):
+def save_settings(passphrase ="none"):
     home = os.environ['HOME']
     if get_platform() == "Linux":
         if not os.path.exists(home+"/.config/HoneyComb"):
             os.mkdir(home+"/.config/HoneyComb")
             
         settings_file = open(home+"/.config/HoneyComb/honeycomb_settings.json","w")
-        settings = {"clientid":generate_client_id(),"hiveaccount":username,"passphrase":passphrase,"gateway_port":8675}
+        settings = {"clientid":generate_client_id(),"passphrase":passphrase,"gateway_port":8675}
         settings_file.write(json.dumps(settings))
         settings_file.close()
+        
+    return settings
         
 ### Loads settings from the file and returns them for use in HoneyComb. 
 ### Needed if statements:
@@ -60,7 +62,7 @@ def get_settings():
         settings_file.close()
         
     else:
-        settings = {"clientid":generate_client_id(),"hiveaccount":"none","passphrase":"none","gateway_port":8675} 
+        settings = {"clientid":generate_client_id(),"passphrase":"none","gateway_port":8675} 
     
     return settings
 

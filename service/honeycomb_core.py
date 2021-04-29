@@ -45,7 +45,9 @@ def message(interface,data):
                     response["honeycomb"]["settings"] = {}
                 response["honeycomb"]["settings"]["file"] = Settings.check_settings_file()
             elif a == "save_settings" and interface == "service":
-                response["honeycomb"]["settings"].update(Settings.save_settings(from_client["account"],from_client["passphrase"]))
+                if "settings" not in response:
+                    response["honeycomb"]["settings"] = {}
+                response["honeycomb"]["settings"].update(Settings.save_settings(from_client["passphrase"]))
             
         # Database functions
         
@@ -56,14 +58,20 @@ def message(interface,data):
                 response["honeycomb"]["database"] = Database.get_from_app()
                 
         # Account functions
-        
+            elif a == "wallet_exists" and interface == "service":
+                response["honeycomb"]["hive"] = Hive.hive_wallet_exists()
+                
+            elif a ==  "create_wallet" and interface == "service":
+                response["honeycomb"]["hive"] = Hive.hive_create_wallet(from_client["passphrase"])
+                    
             elif a == "add_account" and interface == "service":
-                wallet = Hive.import_account(from_client["account"],from_client["keys"])
+                wallet = Hive.import_account(from_client["account"],from_client["keys"],from_client["passphrase"])
                 #print(wallet)
                 profile = Hive.get_from_hive(["profile"],from_client["account"],[])
                # print(profile)
                 if wallet["wallet"] == "imported":
                     Database.set_account_info(from_client["account"],"profile",json.dumps(profile["profile"]))
+                response["honeycomb"]["hive"] = wallet
                     
             elif a == "get_accounts" and interface == "service":
                 response["honeycomb"]["accounts"] = Database.get_accounts()
@@ -76,11 +84,9 @@ def message(interface,data):
                     response["honeycomb"]["database"] = Database.get_from_account(from_client["account"],from_client["opts"])
             
         # Direct from Hive
-        
-            elif a ==  "create_wallet" and interface == "service":
-                response["honeycomb"]["hive"] = Hive.hive_create_wallet()
+       
             elif a == "import_account" and interface == "service":
-                response["honeycomb"]["hive"] = Hive.import_account(from_client["account"],from_client["keys"])
+                response["honeycomb"]["hive"] = Hive.import_account(from_client["account"],from_client["keys"],from_client["passphrase"])
             elif a == "get_from_hive" and interface == "service":
                  if "params" in from_client.keys():
                     types = from_client["params"]["get_from_hive"]
@@ -127,6 +133,7 @@ def message(interface,data):
             elif a == "image_retrieval" and interface == "service":
                 response = Database.image_retrieval(from_client["url"])        
         if a != "image_retrieval":
+            #print(response)
             return json.dumps(response)
         else:
             return response

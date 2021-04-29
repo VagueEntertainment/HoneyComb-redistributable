@@ -1,0 +1,127 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://HoneyComb-redistributable/shared/Icons/system-lock-screen-symbolic.svg" type="Texture" id=1]
+[ext_resource path="res://HoneyComb-redistributable/shared/Fonts/liberation24-Bold.tres" type="DynamicFont" id=2]
+[ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/WalletUnlock.gd" type="Script" id=3]
+
+[node name="WalletUnlock" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -207.0
+margin_top = -265.0
+margin_right = 207.0
+margin_bottom = 270.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 407.0
+margin_bottom = 579.0
+custom_constants/separation = 10
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+margin_right = 400.0
+margin_bottom = 28.0
+custom_fonts/font = ExtResource( 2 )
+text = "Unlock Wallet"
+align = 1
+autowrap = true
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/VBoxContainer"]
+margin_top = 38.0
+margin_right = 400.0
+margin_bottom = 288.0
+rect_min_size = Vector2( 0, 250 )
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 6
+
+[node name="About" type="Label" parent="PanelContainer/VBoxContainer"]
+margin_top = 298.0
+margin_right = 400.0
+margin_bottom = 414.0
+text = "Your local wallet is locked and needs to be unlocked before you can see your NFTs. If you would like the passphrase to be saved to streamline the process check the \"save passphrase\" checkbox. 
+
+(Be sure you are aware of the security implications before doing this)   "
+autowrap = true
+
+[node name="Control3" type="Control" parent="PanelContainer/VBoxContainer"]
+margin_top = 424.0
+margin_right = 400.0
+margin_bottom = 444.0
+rect_min_size = Vector2( 0, 20 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+margin_top = 454.0
+margin_right = 400.0
+margin_bottom = 478.0
+alignment = 1
+
+[node name="PassPhraseLabel" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+margin_left = 5.0
+margin_top = 5.0
+margin_right = 90.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 85, 0 )
+text = "Passphrase:"
+autowrap = true
+
+[node name="Passphrase" type="LineEdit" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+margin_left = 94.0
+margin_right = 394.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 300, 0 )
+
+[node name="CheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+margin_top = 488.0
+margin_right = 400.0
+margin_bottom = 512.0
+text = "Save Passphrase"
+
+[node name="Buttons" type="Control" parent="PanelContainer/VBoxContainer"]
+margin_top = 522.0
+margin_right = 400.0
+margin_bottom = 572.0
+rect_min_size = Vector2( 0, 50 )
+
+[node name="Cancel" type="Button" parent="PanelContainer/VBoxContainer/Buttons"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -20.0
+margin_right = 54.0
+text = "Cancel"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Unlock" type="Button" parent="PanelContainer/VBoxContainer/Buttons"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -12.0
+margin_top = -20.0
+grow_horizontal = 0
+text = "Unlock"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Buttons/Cancel" to="." method="_on_Cancel_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Buttons/Unlock" to="." method="_on_Unlock_pressed"]

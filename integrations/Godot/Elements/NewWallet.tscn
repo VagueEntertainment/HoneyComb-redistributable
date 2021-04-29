@@ -1,0 +1,128 @@
+[gd_scene load_steps=4 format=2]
+
+[ext_resource path="res://HoneyComb-redistributable/shared/Icons/system-lock-screen-symbolic.svg" type="Texture" id=1]
+[ext_resource path="res://HoneyComb-redistributable/shared/Fonts/liberation24-Bold.tres" type="DynamicFont" id=2]
+[ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/NewWallet.gd" type="Script" id=3]
+
+[node name="NewWallet" type="Control"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+margin_left = -207.0
+margin_top = -265.0
+margin_right = 207.0
+margin_bottom = 270.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+margin_left = 7.0
+margin_top = 7.0
+margin_right = 407.0
+margin_bottom = 545.0
+custom_constants/separation = 10
+
+[node name="Title" type="Label" parent="PanelContainer/VBoxContainer"]
+margin_right = 400.0
+margin_bottom = 28.0
+custom_fonts/font = ExtResource( 2 )
+text = "Wallet Creation"
+align = 1
+autowrap = true
+
+[node name="TextureRect" type="TextureRect" parent="PanelContainer/VBoxContainer"]
+margin_top = 38.0
+margin_right = 400.0
+margin_bottom = 288.0
+rect_min_size = Vector2( 0, 250 )
+texture = ExtResource( 1 )
+expand = true
+stretch_mode = 6
+
+[node name="About" type="Label" parent="PanelContainer/VBoxContainer"]
+margin_top = 298.0
+margin_right = 400.0
+margin_bottom = 380.0
+text = "To connect your Hive account you will need to  create a secure wallet to store sensitive information.  Once created you can choose to store the phasphrase locally for ease of use. Be sure you understand the implications of storing paswords. "
+autowrap = true
+
+[node name="Control3" type="Control" parent="PanelContainer/VBoxContainer"]
+margin_top = 390.0
+margin_right = 400.0
+margin_bottom = 410.0
+rect_min_size = Vector2( 0, 20 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="PanelContainer/VBoxContainer"]
+margin_top = 420.0
+margin_right = 400.0
+margin_bottom = 444.0
+custom_constants/separation = 0
+alignment = 1
+
+[node name="PassPhraseLabel" type="Label" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+margin_left = 7.0
+margin_top = 5.0
+margin_right = 92.0
+margin_bottom = 19.0
+rect_min_size = Vector2( 85, 0 )
+text = "Passphrase:"
+autowrap = true
+
+[node name="Passphrase" type="LineEdit" parent="PanelContainer/VBoxContainer/HBoxContainer"]
+margin_left = 92.0
+margin_right = 392.0
+margin_bottom = 24.0
+rect_min_size = Vector2( 300, 0 )
+
+[node name="CheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer"]
+margin_top = 454.0
+margin_right = 400.0
+margin_bottom = 478.0
+text = "Save Passphrase"
+
+[node name="Buttons" type="Control" parent="PanelContainer/VBoxContainer"]
+margin_top = 488.0
+margin_right = 400.0
+margin_bottom = 538.0
+rect_min_size = Vector2( 0, 50 )
+
+[node name="Cancel" type="Button" parent="PanelContainer/VBoxContainer/Buttons"]
+visible = false
+anchor_top = 1.0
+anchor_bottom = 1.0
+margin_top = -20.0
+margin_right = 54.0
+text = "Cancel"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Create" type="Button" parent="PanelContainer/VBoxContainer/Buttons"]
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+margin_left = -12.0
+margin_top = -20.0
+grow_horizontal = 0
+text = "Create"
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[connection signal="pressed" from="PanelContainer/VBoxContainer/CheckBox" to="." method="_on_CheckBox_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Buttons/Cancel" to="." method="_on_Cancel_pressed"]
+[connection signal="pressed" from="PanelContainer/VBoxContainer/Buttons/Create" to="." method="_on_Create_pressed"]

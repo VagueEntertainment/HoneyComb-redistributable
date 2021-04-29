@@ -5,6 +5,7 @@ extends Node
 # var a = 2
 # var b = "text"
 signal honeycomb_returns(return_type,data)
+signal wallet(status)
 #signal loading()
 export var project ="com.example.app"
 var websocket = WebSocketClient.new()
@@ -15,6 +16,7 @@ var settings = {}
 var dynamic_props = {}
 var hive_engine_tokens = []
 var honeycomb_process = []
+var passphrase = ""
 var pid 
 var dir = Directory.new()
 # Called when the node enters the scene tree for the first time.
@@ -70,7 +72,17 @@ func _on_data():
 			"get_settings":
 				settings = jsoned["honeycomb"]["settings"]
 				emit_signal("honeycomb_returns","honeycomb_settings",[jsoned])
-				check_client_registration(settings["hiveaccount"])
+				match settings["passphrase"]:
+					"none":
+						passphrase = "none"
+						emit_signal("honeycomb_returns","passphrase","no_account")
+					"ask":
+						passphrase = "ask"
+						emit_signal("honeycomb_returns","passphrase","ask")
+					_:
+						passphrase = settings["passphrase"]
+						emit_signal("honeycomb_returns","passphrase",settings["passphrase"])
+				#check_client_registration(settings["hiveaccount"])
 			"check_registration":
 				set_location()
 				emit_signal("honeycomb_returns","honeycomb_registration_status",[data])
@@ -124,7 +136,7 @@ func check_client_registration(account):
 func set_location():
 	var msg = {
 			"act":["update_loc"],
-			"appname":"com.vagueentertainment.honeycomb",
+			"appname":project,
 			"type":"location"
 		}
 	match connectionType:
@@ -144,6 +156,39 @@ func launch_service():
 		
 	pass
 	
+func check_for_wallet():
+	var msg = {
+			"act":["wallet_exists"],
+			"type":"wallet_exists"
+		}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet_exists",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+	pass
+
+func create_wallet(passphrase):
+	var msg = {
+			"act":["create_wallet"],
+			"passphrase":passphrase,
+			"type":"create_wallet"
+		}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["create_wallet",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
+	pass
+	
 func get_settings():
 	var msg = {
 				"act":["get_settings"],
@@ -160,7 +205,21 @@ func get_settings():
 			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
-func set_settings():
+func set_settings(passphrase):
+	var msg = {
+				"act":["save_settings"],
+				"type":"save_settings",
+				"passphrase":passphrase
+			}
+	match connectionType:
+		1:
+			var check = HTTPRequest.new()
+			check.set_timeout(10)
+			add_child(check)
+			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["save_settings",check])
+			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+		2:
+			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 
@@ -170,8 +229,10 @@ func login(_name,_password):
 func add_account(account,keys):
 	var msg = {
 					"act":["add_account"],
+					"type":"add_account",
+					"passphrase":passphrase,
 					"account":account,
-					"keys":[keys["posting"]+'","'+keys["active"]]
+					"keys":[keys["posting"],keys["active"]]
 				}
 	match connectionType:
 		1:
@@ -684,3 +745,15 @@ func _on_service_check_timeout():
 	check_for_service()
 	#print("checking for service")
 	pass # Replace with function body.
+
+func show_login():
+	$Login.show()
+
+func new_wallet():
+	$NewWallet.show()	
+
+func unlock_wallet():
+	$WalletUnlock.show()
+
+
+	
