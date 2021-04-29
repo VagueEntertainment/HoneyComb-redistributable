@@ -169,7 +169,8 @@ func check_for_wallet():
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet_exists",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 func create_wallet(passphrase):
@@ -186,7 +187,8 @@ func create_wallet(passphrase):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["create_wallet",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
 func get_settings():
@@ -202,7 +204,8 @@ func get_settings():
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["get_settings",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
 func set_settings(passphrase):
@@ -219,7 +222,8 @@ func set_settings(passphrase):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["save_settings",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 
@@ -246,7 +250,8 @@ func add_account(account,keys):
 		2:
 			if keys.has("posting") and keys.has("active"):
 				print("Keys are in order")
-				websocket_transfer.put_packet(to_json(msg).to_utf8())
+				if websocket_transfer:
+					websocket_transfer.put_packet(to_json(msg).to_utf8())
 
 func list_accounts():
 	var msg = {
@@ -261,7 +266,8 @@ func list_accounts():
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["get_accounts",check])
 			check.request("http://0.0.0.0:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 
 func check_mode():
 	pass
@@ -331,7 +337,8 @@ func get_nft(source,app,account,opts = []):
 							"opts":opts,
 							"type":app
 						}
-					websocket_transfer.put_packet(to_json(command).to_utf8())
+					if websocket_transfer:
+						websocket_transfer.put_packet(to_json(command).to_utf8())
 	
 	pass
 
@@ -386,7 +393,8 @@ func claim_hive_rewards(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["claim_hive_rewards",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg=')
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 			pass
 	pass
 
@@ -407,7 +415,8 @@ func load_wallet(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 			pass
 	pass
 
@@ -427,7 +436,8 @@ func get_followers(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["followers",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 			pass
 	pass
 
@@ -448,7 +458,8 @@ func get_following(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["following",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg=')
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 func get_profile(account = settings["hiveaccount"]):
@@ -467,7 +478,8 @@ func get_profile(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["profile",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 
@@ -488,7 +500,8 @@ func get_from_hive(type,account):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_"+type,check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 	
@@ -509,7 +522,8 @@ func hive_get_vp(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_vp",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 
@@ -530,7 +544,8 @@ func hive_get_RC(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rc",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 	
@@ -549,7 +564,8 @@ func hive_get_delegation(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_delegation",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
 	pass
 	
@@ -570,7 +586,8 @@ func get_balance(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_balances",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
 func hive_get_rewards(account = settings["hiveaccount"]):
@@ -589,7 +606,8 @@ func hive_get_rewards(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rewards",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 	
 func hive_get_dynamic_props():
@@ -606,7 +624,8 @@ func hive_get_dynamic_props():
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_dynamic_props",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 			
 	pass
 
@@ -627,7 +646,8 @@ func get_history(author,history_type,return_type = "history"):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",[return_type,check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 ### Hive Engine
@@ -648,7 +668,8 @@ func get_hive_engine_tokens():
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_tokens",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 	pass
 
 func get_hive_engine_balance(account = settings["hiveaccount"]):
@@ -667,7 +688,8 @@ func get_hive_engine_balance(account = settings["hiveaccount"]):
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_balance",check])
 			check.request("http://127.0.0.1:8670/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
-			websocket_transfer.put_packet(to_json(msg).to_utf8())
+			if websocket_transfer:
+				websocket_transfer.put_packet(to_json(msg).to_utf8())
 			
 	pass
 	
