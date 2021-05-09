@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import subprocess
 import sys
@@ -7,6 +7,7 @@ sys.path.append("..")
 import json
 import time
 import honeycomb_core as Core
+import logging
 
 from bottle import route, run, template, request, static_file
 
@@ -35,4 +36,4 @@ def index():
 			return Core.message("service",themessage)
 
 print("Started")
-run(host='0.0.0.0', port=8670)
+run(host='0.0.0.0', port=8000)

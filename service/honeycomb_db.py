@@ -48,6 +48,7 @@ def create_db():
     
     conn.execute ('''CREATE TABLE IF NOT EXISTS history
                         (ID INTEGER PRIMARY KEY UNIQUE,
+                        ACCOUNT TEXT,
                         TYPE TEXT NOT NULL,
                         AUTHOR TEXT,
                         PARENT_AUTHOR TEXT,
@@ -156,7 +157,7 @@ def add_misc(data):
         conn.commit()
         conn.close()
 
-def add_history(data):
+def add_history(account,data):
     home = os.environ['HOME']
     conn = ''
     rowcount = -1
@@ -173,6 +174,7 @@ def add_history(data):
     TITLE = ""
     PERMLINK = ""
     METADATA = ""
+    ACCOUNT = account
     
     if "author" in data[1]["op"][1]:
         AUTHOR = data[1]["op"][1]["author"]
@@ -208,8 +210,8 @@ def add_history(data):
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
         #print("Opened database successfully")
     if conn != '':
-        vals = [ID,TYPE,AUTHOR,PARENT_AUTHOR,CURATOR,VOTER,TRANSACTION_ID,BODY,TITLE,PERMLINK,METADATA]
-        conn.execute("INSERT INTO history (ID,TYPE,AUTHOR,PARENT_AUTHOR,CURATOR,VOTER,TRANSACTION_ID,BODY,TITLE,PERMLINK,METADATA) VALUES (?,?,?,?,?,?,?,?,?,?,?)",vals)
+        vals = [ID,ACCOUNT,TYPE,AUTHOR,PARENT_AUTHOR,CURATOR,VOTER,TRANSACTION_ID,BODY,TITLE,PERMLINK,METADATA]
+        conn.execute("INSERT INTO history (ID,ACCOUNT,TYPE,AUTHOR,PARENT_AUTHOR,CURATOR,VOTER,TRANSACTION_ID,BODY,TITLE,PERMLINK,METADATA) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",vals)
         conn.commit()
         conn.close()
         try:
@@ -276,7 +278,7 @@ def set_account_info(accountname,field,data):
 
 ### Retrieval Functions
 
-def get_from_history(cat,author,limit = -1):
+def get_from_history(cat,account,limit = -1):
     home = os.environ['HOME']
     conn = ''
     response = {}
@@ -291,7 +293,7 @@ def get_from_history(cat,author,limit = -1):
     if conn != '':
         for c in cat:
             if limit == -1:
-                cursor = conn.execute("SELECT BODY,METADATA FROM history WHERE TYPE = ? AND AUTHOR = ? ORDER by ID DESC",[c,author])
+                cursor = conn.execute("SELECT BODY,METADATA FROM history WHERE TYPE = ? AND ACCOUNT = ? ORDER by ID DESC",[c,account])
             form_DB = cursor.fetchall()
             for row in form_DB:
                 history_list.append({"body":row[0],"metadata":row[1]})

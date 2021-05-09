@@ -34,6 +34,7 @@ func _on_CheckBox_pressed():
 
 func _on_honeycomb_returns(type,data):
 	var passphrase = $PanelContainer/VBoxContainer/HBoxContainer/Passphrase.text
+	
 	if type == "create_wallet":
 		var status = parse_json(data[0])
 		if $PanelContainer/VBoxContainer/CheckBox.pressed:
@@ -42,5 +43,5 @@ func _on_honeycomb_returns(type,data):
 		else:
 			HoneyComb.set_settings("ask")
 			print("User will be asked")
-		hide()
 		HoneyComb.emit_signal("wallet",["created"])
+		hide()

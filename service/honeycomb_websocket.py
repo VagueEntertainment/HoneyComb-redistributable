@@ -8,6 +8,7 @@ import subprocess
 import sys
 import os
 import honeycomb_core as Core
+import logging
 
 async def to_core(websocket, path):
    
@@ -26,8 +27,8 @@ async def to_core(websocket, path):
                 #print(Seed.simp_decrypt(key,encrypt))
                 await websocket.send(encrypt)
             else:
-                print('{"server":"error incomplete message"}')
-                print(themessage)
+                logging.info('{"server":"error incomplete message"}')
+                loggin.info(themessage)
                 await websocket.send(str('{"server":"error incomplete message"}').encode("utf8"))
         else:
             if themessage != None:
@@ -38,5 +39,5 @@ async def to_core(websocket, path):
                     else:
                         await websocket.send(Core.message("service",themessage))
 
-asyncio.get_event_loop().run_until_complete(websockets.server.serve(to_core, '0.0.0.0', 8671,max_size=1048576))
+asyncio.get_event_loop().run_until_complete(websockets.server.serve(to_core, '0.0.0.0', 8001,max_size=1048576))
 asyncio.get_event_loop().run_forever()

@@ -1,4 +1,4 @@
-    #!/usr/bin/python3
+#!/usr/bin/env python3
 
 import subprocess
 import sys
@@ -6,6 +6,7 @@ import os
 import sqlite3
 import json
 import time
+import signal
 
 sys.path.append("..")
 
@@ -18,6 +19,24 @@ import honeycomb_db as Database
 from bottle import route, run, template, request, static_file
 
 settings = Settings.get_settings()
+
+
+def shutdown():
+    home = os.environ['HOME']
+    if Settings.get_platform() == "Linux":
+        clear = open(home+"/.config/HoneyComb/honeycomb_pids","r")
+        pids = clear.read()
+        processes = json.loads(pids)
+        if processes["pids"]["service"]:
+            os.kill(processes["pids"]["service"],signal.SIGTERM)
+        if processes["pids"]["html"]:
+            os.kill(processes["pids"]["html"],signal.SIGTERM)
+        if processes["pids"]["websocket"]:
+            os.kill(processes["pids"]["websocket"],signal.SIGTERM)
+            
+        clear.close()
+        
+
 
 
 def message(interface,data):
@@ -132,6 +151,11 @@ def message(interface,data):
         
             elif a == "image_retrieval" and interface == "service":
                 response = Database.image_retrieval(from_client["url"])        
+                
+            elif a == "shutdown_service" and interface == "service":
+                response["honeycomb"]["system"] ={"message":"shutdown"}
+                shutdown()
+                
         if a != "image_retrieval":
             #print(response)
             return json.dumps(response)

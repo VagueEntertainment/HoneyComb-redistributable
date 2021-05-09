@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import sys
 import json
@@ -41,7 +41,7 @@ def save_settings(passphrase ="none"):
             os.mkdir(home+"/.config/HoneyComb")
             
         settings_file = open(home+"/.config/HoneyComb/honeycomb_settings.json","w")
-        settings = {"clientid":generate_client_id(),"passphrase":passphrase,"gateway_port":8675}
+        settings = {"clientid":generate_client_id(),"passphrase":passphrase,"gateway_port":8080}
         settings_file.write(json.dumps(settings))
         settings_file.close()
         

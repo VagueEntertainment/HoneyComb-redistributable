@@ -20,6 +20,7 @@ HTML_PROCESS = ''
 WebSocket_PROCESS = ''
 uptime = 0
 timeoffset = 3
+pid_recorded = False
 
 def launch_html():
     
@@ -35,6 +36,17 @@ def launch_WebSocket():
     print("WebSocket Launched ",WebSocket_PROCESS.pid)
 
     return WebSocket_PROCESS
+    
+def check_html():
+    sucess = False
+    
+    
+    return sucess
+
+def check_websocket():
+    sucess = False
+    
+    return sucess
 
 def honeycomb_update(account = "none"):
 
@@ -52,19 +64,19 @@ def honeycomb_update(account = "none"):
     lastchain = Hive.get_transaction_count(account)
       
     if lastrecord < lastchain:
-        print("running update")
+        #print("running update")
         if lastrecord == -1:
-            print("first time, building complete index, This may take a while")
+            #print("first time, building complete index, This may take a while")
             for i in Hive.get_history(account,-1): 
-                DataBase.add_history(i)
+                DataBase.add_history(account,i)
         else:
-            print("updating the database by",lastchain-lastrecord,"records")
+            #print("updating the database by",lastchain-lastrecord,"records")
             for i in Hive.get_history(account,lastchain-lastrecord):
-                print("On Hive",i[0])
+                #print("On Hive",i[0])
                 latest = DataBase.check_latest("honeycomb","history")["honeycomb"]["data"]
-                print("In Database",latest)
+               # print("In Database",latest)
                 if i[0] > latest:
-                    DataBase.add_history(i)
+                    DataBase.add_history(account,i)
        
     return 1
     
@@ -105,33 +117,57 @@ def gather_dynamic_props(update = False):
         dynamic_ops = Hive.get_dynamic_global_properties()
         #print(dynamic_ops)
         DataBase.add_misc(["hive_dgp",dynamic_ops,"global"])
+
+def pid_record(pid1,pid2):
+    home = os.environ['HOME']
+    if Settings.get_platform() == "Linux":
+        if not os.path.exists(home+"/.config/HoneyComb"):
+            os.mkdir(home+"/.config/HoneyComb")
+        clear = open(home+"/.config/HoneyComb/honeycomb_pids","w")
+        clear.write("")
+        clear.close()
+        pid_file = open(home+"/.config/HoneyComb/honeycomb_pids","a")
+        p = os.getpid()
+        pids = {"pids":{"service":p,"html":pid1,"websocket":pid2}}
+        pid_file.write(json.dumps(pids))
+        pid_file.close()
+  
    
 try:
     while True:
-       uptime +=30
-       if HTML_PROCESS == '' or WebSocket_PROCESS == '':
-           HTML_PROCESS = launch_html()
-           WebSocket_PROCESS = launch_WebSocket()
-       else:    
-        if timeoffset == 3:
-          gather_dynamic_props(True)
-          accounts = DataBase.get_accounts()
-          for a in accounts.keys():
-             gather_profile_data(a,True)
-             honeycomb_update(a)
-             timeoffset = 300
-        else:
-            if uptime % 240 == 0:
-               print("Updating Dynamic Props")
-               gather_dynamic_props(True)
+       uptime +=10
+       #print(uptime)
+       if HTML_PROCESS == '':
+            HTML_PROCESS = launch_html()
            
-            elif uptime % 60 == 0:
-               print("Updating Profile")
-               accounts = DataBase.get_accounts()
-               for a in accounts.keys():
-                   gather_profile_data(a,True)
-                   honeycomb_update(a)
+       if WebSocket_PROCESS == '':
+          WebSocket_PROCESS = launch_WebSocket()
+          #pid_record(WebSocket_PROCESS.pid)
+          
+       if HTML_PROCESS != '' and WebSocket_PROCESS != '':
+       
+            if not pid_recorded:
+                pid_record(HTML_PROCESS.pid,WebSocket_PROCESS.pid)
+                pid_recorded = True
+                
+            if timeoffset == 3:
+                gather_dynamic_props(True)
+                accounts = DataBase.get_accounts()
+                for a in accounts.keys():
+                    gather_profile_data(a,True)
+                    honeycomb_update(a)
+                timeoffset = 10
+            else:
+                if uptime % 2400 == 0:
+                    print("Updating Dynamic Props")
+                    gather_dynamic_props(True)
            
+                elif uptime % 600 == 0:
+                    print("Updating Profile")
+                    accounts = DataBase.get_accounts()
+                    for a in accounts.keys():
+                        gather_profile_data(a,True)
+                        honeycomb_update(a)
        time.sleep(timeoffset)
        
 except KeyboardInterrupt:

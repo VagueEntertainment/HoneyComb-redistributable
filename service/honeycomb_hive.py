@@ -1,4 +1,5 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
+
 import sys
 import os
 #import sqlite3
@@ -6,6 +7,8 @@ import hashlib
 import json
 import time
 import requests
+import logging
+
 from hive import amount
 from hive import hive
 from hive import account
@@ -19,7 +22,7 @@ fix_thy_self = wallet.Wallet()
 settings = Settings.get_settings()
 
 def hive_init():
-
+    h = None
     thenodes = ['https://api.hive.blog',
         'https://api.openhive.network',
         'https://anyx.io',
@@ -33,9 +36,9 @@ def hive_init():
         'https://hived.emre.sh']
     try:
         h = hive.Hive(nodes=thenodes)
-        return True
+        return thenodes
     except:
-        return False
+        return h
     
 ### Wallet commands
 
@@ -99,14 +102,15 @@ def import_account(accountname,keys=[],passphrase = settings["passphrase"]):
             settings = Settings.get_settings()
             for key in keys:
                 #print("From import_account: Verifying ",key, " belongs to ",accountname)
-                if w.getAccountFromPrivateKey(key) != accountname:
-                    returns = {'wallet':'error,incorrect account/key combo.'}
-                    break
-                else:
-                    try:
-                        test.append(w.addPrivateKey(key))
-                    except:
-                        pass
+                if len(key) > 6:
+                    if w.getAccountFromPrivateKey(key) != accountname:
+                        returns = {'wallet':'error,incorrect account/key combo.'}
+                    #break
+                    else:
+                        try:
+                            test.append(w.addPrivateKey(key))
+                        except:
+                            pass
             #returns = {'wallet':{'added':test}}
        else:
             returns = {'wallet':'locked'}
@@ -116,7 +120,7 @@ def import_account(accountname,keys=[],passphrase = settings["passphrase"]):
     return returns
     
 def claim_hive_rewards(accountname,passphrase = settings["passphrase"],rewardtype = []  ):
-    if hive_init() == True:
+    if hive_init() != None:
         settings = Settings.get_settings()
         hive_unlock_wallet(accoutname,passphrase)
         balance = get_from_hive(["balances"],accountname)["balances"]["rewards"]
@@ -137,34 +141,35 @@ def claim_hive_rewards(accountname,passphrase = settings["passphrase"],rewardtyp
 ### General data gathering
 
 def get_transaction_count(account):
-    hive_init()
-    settings = Settings.get_settings()
-    try:
-        data = hived.Hived().get_account_history(account,-1,1)
-        transaction_count = data[0][0]
-    except:
-        transaction_count = -1
+    if hive_init() != None:
+        settings = Settings.get_settings()
+        try:
+            data = hived.Hived().get_account_history(account,-1,1)
+            transaction_count = data[0][0]
+        except:
+            transaction_count = -1
         
     return transaction_count
 
 def get_dynamic_global_properties():
-    hive_init()
-    url = "https://api.hive.blog"
-    props = {"jsonrpc":"2.0", "method":"condenser_api.get_dynamic_global_properties", "params":[], "id":1}
-    data = ""
-    try:
-       with requests.post(url, json=props) as t:
-        data = t.text
-        dynamic_props = t.json()
-    except:
-        pass
+    h = hive_init()
+    if h != None:
+        url = h[0]
+        props = {"jsonrpc":"2.0", "method":"condenser_api.get_dynamic_global_properties", "params":[], "id":1}
+        data = ""
+        try:
+            with requests.post(url, json=props, timeout=10) as t:
+                data = t.text
+                dynamic_props = t.json()
+        except:
+            pass
         
     return data
     
 def get_from_hive(data_type,accountname,opts = []):
     response = {}
     try:
-        if hive_init() == True:
+        if hive_init() != None:
             for data in data_type:
                 if data == "balances":balance = {"balances":account.Account(accountname).get_balances()};response.update({"balances":account.Account(accountname).get_balances()})
                 if data == "voting_power":response.update({"vp":account.Account(accountname).voting_power()})
@@ -274,7 +279,7 @@ def find_type(accountname,post_type,query = [],limit = -1):
     
     
 def get_history(accountname,limit = -1):
-    print("gettting history for ",accountname)
+   # print("gettting history for ",accountname)
     settings = Settings.get_settings()
     start = -1
     response = []

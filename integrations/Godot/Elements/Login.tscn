@@ -200,6 +200,7 @@ This wizard will help you connect your hive account and initialize Honeycomb on 
 fit_content_height = true
 
 [node name="PanelContainer2" type="PanelContainer" parent="NewAccountWizard/VBoxContainer/Panel"]
+visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 custom_styles/panel = SubResource( 1 )
@@ -243,7 +244,6 @@ Note: Honeycomb does not \"mine coins\" on your system nor will you be able to a
 "
 
 [node name="PanelContainer3" type="PanelContainer" parent="NewAccountWizard/VBoxContainer/Panel"]
-visible = false
 anchor_right = 1.0
 anchor_bottom = 1.0
 margin_right = -1.0
@@ -298,35 +298,41 @@ margin_top = 24.0
 margin_right = 420.0
 margin_bottom = 48.0
 
-[node name="Label2" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="Label3" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
 margin_top = 58.0
 margin_right = 420.0
 margin_bottom = 72.0
-text = "Active Key:"
+text = "Posting Key:"
 
-[node name="activekey" type="LineEdit" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="postingkey" type="LineEdit" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
 margin_top = 82.0
 margin_right = 420.0
 margin_bottom = 106.0
 
-[node name="Label3" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="Label2" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
 margin_top = 116.0
 margin_right = 420.0
 margin_bottom = 130.0
-text = "Posting Key:"
+text = "Active Key:"
 
-[node name="postingkey" type="LineEdit" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
+[node name="activekey" type="LineEdit" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
 margin_top = 140.0
 margin_right = 420.0
 margin_bottom = 164.0
+placeholder_text = "(optional)"
 
 [node name="Label2" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer"]
 margin_left = 457.0
-margin_top = 24.0
+margin_top = 15.0
 margin_right = 757.0
-margin_bottom = 140.0
+margin_bottom = 148.0
+grow_horizontal = 2
+grow_vertical = 2
 rect_min_size = Vector2( 300, 0 )
-text = "To use your hive account fully we will need both your active and posting private keys. As mentioned before these keys are stored locally and securely. Note: Your active key is only used for wallet based actions where your posting key is used for a large portion of the actions on honeycomb. "
+text = "To use your hive account we will need your private keys used to communicate to Hive. As mentioned before these keys are stored locally and securely.
+
+
+ Note: Your active key is only used for wallet based actions and is optional."
 autowrap = true
 
 [node name="HBoxContainer2" type="HBoxContainer" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer"]
