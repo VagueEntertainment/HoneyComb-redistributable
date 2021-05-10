@@ -1,0 +1,3 @@
+recursive-include integrations *
+recursive-include shared *
+recursive-include bin *
