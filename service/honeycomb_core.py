@@ -9,6 +9,7 @@ import time
 import signal
 
 sys.path.append("..")
+sys.path.append("../service")
 
 import honeycomb_hive as Hive
 import honeycomb_settings as Settings

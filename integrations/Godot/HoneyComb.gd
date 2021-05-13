@@ -21,6 +21,7 @@ var pid
 var dir = Directory.new()
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	preflight()
 	check_for_service()
 	
 	websocket.connect("connection_closed", self, "_closed")
@@ -805,4 +806,10 @@ func shutdown_service():
 				if websocket_transfer:
 					websocket_transfer.put_packet(to_json(msg).to_utf8())
 	return true
+
+func preflight():
+	var status = {}
+	var output = []
+	var exit_code = OS.execute("python3",["-V"],true,output)
 	
+	return status	

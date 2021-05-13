@@ -4,6 +4,7 @@ import os
 import json
 import requests
 sys.path.append("..")
+sys.path.append("../service")
 
 def get_from_hive_engine(data_type,accountname,opts = []):
     response = {}

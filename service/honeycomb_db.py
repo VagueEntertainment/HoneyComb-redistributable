@@ -9,6 +9,7 @@ import time
 import requests
 
 sys.path.append("..")
+sys.path.append("../service")
 import honeycomb_settings as Settings
 
 def create_db():

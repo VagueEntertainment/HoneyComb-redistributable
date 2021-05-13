@@ -1,10 +1,11 @@
-[gd_scene load_steps=6 format=2]
+[gd_scene load_steps=7 format=2]
 
 [ext_resource path="res://HoneyComb-redistributable/integrations/Godot/HoneyComb.gd" type="Script" id=1]
 [ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/NewWallet.tscn" type="PackedScene" id=2]
 [ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/Login.tscn" type="PackedScene" id=3]
 [ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/WalletUnlock.tscn" type="PackedScene" id=4]
 [ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/Loading.tscn" type="PackedScene" id=5]
+[ext_resource path="res://HoneyComb-redistributable/shared/theme.theme" type="Theme" id=6]
 
 [node name="HoneyComb" type="Node"]
 script = ExtResource( 1 )
@@ -14,12 +15,15 @@ wait_time = 2.0
 
 [node name="Login" parent="." instance=ExtResource( 3 )]
 visible = false
+theme = ExtResource( 6 )
 
 [node name="NewWallet" parent="." instance=ExtResource( 2 )]
 visible = false
+theme = ExtResource( 6 )
 
 [node name="WalletUnlock" parent="." instance=ExtResource( 4 )]
 visible = false
+theme = ExtResource( 6 )
 
 [node name="Loading" parent="." instance=ExtResource( 5 )]
 visible = false

@@ -15,6 +15,7 @@ from hive import account
 from hive import wallet
 from hive import hived
 sys.path.append("..")
+sys.path.append("../service")
 import honeycomb_settings as Settings
 import honeycomb_hive_engine as Hive_Engine
 w = wallet.Wallet()
