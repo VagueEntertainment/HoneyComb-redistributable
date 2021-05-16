@@ -19,11 +19,18 @@ var honeycomb_process = []
 var passphrase = ""
 var pid 
 var dir = Directory.new()
+var rootdir = ""
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	preflight()
 	check_for_service()
-	
+	var exepath = OS.get_executable_path().split("/")
+	var num = 0
+	while num < len(exepath) -1:
+		rootdir += exepath[num]+"/"
+		num +=1
+	print(rootdir)
+		
 	websocket.connect("connection_closed", self, "_closed")
 	websocket.connect("connection_error", self, "_closed")
 	websocket.connect("connection_established", self, "_connected")
@@ -40,8 +47,9 @@ func _closed(was_clean = false):
 	# by the remote peer before closing the socket.
 	print("Closed, clean: ", was_clean)
 	emit_signal("honeycomb_returns","service",["stopped"])
-	pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
-	print(pid)
+	#pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+	launch_service()
+	#print(pid)
 	if $service_check.is_stopped():
 		$service_check.wait_time +=2
 		$service_check.start()
@@ -159,9 +167,16 @@ func set_location():
 			
 
 func launch_service():
-	#if check_for_service():
-	#	print("launching")
-		
+	var dir1 = Directory.new()
+	print("checking, "+rootdir+"HoneyComb-redistributable/service/")
+	if	dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"):
+		print("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
+		pid = OS.execute(rootdir+"HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+	elif dir1.dir_exists("./HoneyComb-redistributable/service/"):
+		print("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
+		pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+	else:
+		print("No suitible service found")
 	pass
 	
 func check_for_wallet():
@@ -709,7 +724,10 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 	if response_code == 0:
 		if request_type == "check":
 			emit_signal("honeycomb_returns","service",["stopped"])
-			pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+			var d = Directory.new()
+			print(d.get_current_dir())
+			#pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+			launch_service()
 			if $service_check.is_stopped():
 				$service_check.wait_time +=2
 				$service_check.start()
@@ -813,3 +831,4 @@ func preflight():
 	var exit_code = OS.execute("python3",["-V"],true,output)
 	
 	return status	
+

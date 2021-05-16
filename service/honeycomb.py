@@ -24,15 +24,23 @@ pid_recorded = False
 
 def launch_html():
     
-    subprocess.DETACHED_PROCESS = True
-    HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+     subprocess.DETACHED_PROCESS = True
+    try:
+        HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'],stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+    except:
+        HTML_PROCESS = subprocess.Popen(['/app/bin/HoneyComb-redistributable/service/honeycomb_html.py'],stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+    
     print("Html Launched ",HTML_PROCESS.pid)
 
     return HTML_PROCESS
 
 def launch_WebSocket():
     subprocess.DETACHED_PROCESS = True
-    WebSocket_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+    try:
+        WebSocket_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+    except:
+        WebSocket_PROCESS = subprocess.Popen(['/app/bin/HoneyComb-redistributable/service/honeycomb_websocket.py'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+        
     print("WebSocket Launched ",WebSocket_PROCESS.pid)
 
     return WebSocket_PROCESS

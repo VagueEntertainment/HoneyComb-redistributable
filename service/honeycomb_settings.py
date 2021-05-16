@@ -22,7 +22,7 @@ def check_settings_file():
     home = os.environ['HOME']
     if get_platform() == "Linux":
         if not os.path.exists(home+"/.config/HoneyComb"):
-            os.mkdir(home+"/.config/HoneyComb")
+            os.makedirs(home+"/.config/HoneyComb")
             
         if os.path.exists(home+"/.config/HoneyComb/honeycomb_settings.json"):
             #print("Found file")
@@ -41,7 +41,7 @@ def save_settings(passphrase ="none"):
     home = os.environ['HOME']
     if get_platform() == "Linux":
         if not os.path.exists(home+"/.config/HoneyComb"):
-            os.mkdir(home+"/.config/HoneyComb")
+            os.makedirs(home+"/.config/HoneyComb")
             
         settings_file = open(home+"/.config/HoneyComb/honeycomb_settings.json","w")
         settings = {"clientid":generate_client_id(),"passphrase":passphrase,"gateway_port":8080}
