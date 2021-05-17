@@ -24,11 +24,11 @@ pid_recorded = False
 
 def launch_html():
     
-     subprocess.DETACHED_PROCESS = True
+    subprocess.DETACHED_PROCESS = True
     try:
-        HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'],stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+       HTML_PROCESS = subprocess.Popen(['./HoneyComb-redistributable/service/honeycomb_html.py'],stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
     except:
-        HTML_PROCESS = subprocess.Popen(['/app/bin/HoneyComb-redistributable/service/honeycomb_html.py'],stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
+       HTML_PROCESS = subprocess.Popen(['/app/bin/HoneyComb-redistributable/service/honeycomb_html.py'],stdout=subprocess.PIPE, stderr=subprocess.PIPE,start_new_session=True)
     
     print("Html Launched ",HTML_PROCESS.pid)
 
