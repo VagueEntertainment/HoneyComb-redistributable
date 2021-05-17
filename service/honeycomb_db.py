@@ -18,10 +18,10 @@ def create_db():
     if Settings.get_platform() == "Linux":
     
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
             
         if not os.path.exists(home+"/.local/share/HoneyComb/cache"):
-            os.mkdir(home+"/.local/share/HoneyComb/cache")
+            os.makedirs(home+"/.local/share/HoneyComb/cache")
             
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
         
@@ -78,7 +78,7 @@ def create_app_db(appname):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
             
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/"+appname+".db")
     
@@ -108,7 +108,7 @@ def check_latest(dbname,table,search = []):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/"+dbname+".db")
     
@@ -138,7 +138,7 @@ def add_misc(data):
      #response = {"honeycomb":{"database":"honeycomb","table":"misc","
      if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
             
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
         #print("Opened database successfully")
@@ -206,7 +206,7 @@ def add_history(account,data):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
         #print("Opened database successfully")
@@ -237,7 +237,7 @@ def set_app_data(accountname,field,data):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
         #print("Opened database successfully")
@@ -257,7 +257,7 @@ def set_account_info(accountname,field,data):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
         #print("Opened database successfully")
@@ -287,7 +287,7 @@ def get_from_history(cat,account,limit = -1):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
     
@@ -310,7 +310,7 @@ def get_from_account(accountname,fields):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
     
@@ -351,7 +351,7 @@ def get_from_misc(types):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
     
@@ -375,7 +375,7 @@ def get_from_app(appname,field):
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/"+appname+".db")
     
@@ -392,7 +392,7 @@ def get_accounts():
     
     if Settings.get_platform() == "Linux":
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
 
         conn = sqlite3.connect(home+"/.local/share/HoneyComb/honeycomb.db")
     
@@ -417,10 +417,10 @@ def cache_img(url):
     if Settings.get_platform() == "Linux":
         cachedir = home+"/.local/share/HoneyComb/cache"
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
             
         if not os.path.exists(cachedir):
-            os.mkdir(cachedir)
+            os.makedirs(cachedir)
     for u in url:
         try:        
             with requests.get(u) as r:
@@ -439,10 +439,10 @@ def image_retrieval(url):
     if Settings.get_platform() == "Linux":
         cachedir = home+"/.local/share/HoneyComb/cache"
         if not os.path.exists(home+"/.local/share/HoneyComb"):
-            os.mkdir(home+"/.local/share/HoneyComb")
+            os.makedirs(home+"/.local/share/HoneyComb")
             
         if not os.path.exists(cachedir):
-            os.mkdir(cachedir)
+            os.makedirs(cachedir)
     
     filename = url.split("/")[-1]
     if os.path.exists(cachedir+"/"+str(filename)):
