@@ -87,11 +87,13 @@ margin_left = 94.0
 margin_right = 394.0
 margin_bottom = 24.0
 rect_min_size = Vector2( 300, 0 )
+secret = true
 
 [node name="CheckBox" type="CheckBox" parent="PanelContainer/VBoxContainer"]
 margin_top = 488.0
 margin_right = 400.0
 margin_bottom = 512.0
+pressed = true
 text = "Save Passphrase"
 
 [node name="Buttons" type="Control" parent="PanelContainer/VBoxContainer"]

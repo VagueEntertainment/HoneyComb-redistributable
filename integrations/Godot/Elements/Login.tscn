@@ -10,7 +10,7 @@
 [ext_resource path="res://HoneyComb-redistributable/shared/Icons/system-lock-screen-symbolic.svg" type="Texture" id=8]
 [ext_resource path="res://font/title25.tres" type="DynamicFont" id=9]
 
-[sub_resource type="StyleBoxFlat" id=2]
+[sub_resource type="StyleBoxFlat" id=1]
 bg_color = Color( 0.854902, 0.882353, 0.529412, 1 )
 draw_center = false
 border_width_left = 2
@@ -22,7 +22,7 @@ corner_radius_top_right = 19
 corner_radius_bottom_right = 19
 corner_radius_bottom_left = 19
 
-[sub_resource type="StyleBoxFlat" id=3]
+[sub_resource type="StyleBoxFlat" id=2]
 bg_color = Color( 1, 1, 1, 1 )
 corner_radius_top_left = 10
 corner_radius_top_right = 10
@@ -301,6 +301,7 @@ text = "Posting Key:"
 margin_top = 78.0
 margin_right = 420.0
 margin_bottom = 98.0
+secret = true
 
 [node name="Label2" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer/VBoxContainer"]
 margin_top = 108.0
@@ -312,6 +313,7 @@ text = "Active Key:"
 margin_top = 132.0
 margin_right = 420.0
 margin_bottom = 152.0
+secret = true
 placeholder_text = "(optional)"
 
 [node name="Label2" type="Label" parent="NewAccountWizard/VBoxContainer/Panel/PanelContainer3/VBoxContainer/HBoxContainer"]
@@ -422,11 +424,11 @@ grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 40, 40 )
 focus_mode = 0
-custom_styles/hover = SubResource( 2 )
-custom_styles/pressed = SubResource( 2 )
-custom_styles/focus = SubResource( 2 )
-custom_styles/disabled = SubResource( 2 )
-custom_styles/normal = SubResource( 2 )
+custom_styles/hover = SubResource( 1 )
+custom_styles/pressed = SubResource( 1 )
+custom_styles/focus = SubResource( 1 )
+custom_styles/disabled = SubResource( 1 )
+custom_styles/normal = SubResource( 1 )
 toggle_mode = true
 enabled_focus_mode = 0
 
@@ -442,7 +444,7 @@ margin_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 20, 20 )
-custom_styles/panel = SubResource( 3 )
+custom_styles/panel = SubResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -455,11 +457,11 @@ grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 40, 40 )
 focus_mode = 0
-custom_styles/hover = SubResource( 2 )
-custom_styles/pressed = SubResource( 2 )
-custom_styles/focus = SubResource( 2 )
-custom_styles/disabled = SubResource( 2 )
-custom_styles/normal = SubResource( 2 )
+custom_styles/hover = SubResource( 1 )
+custom_styles/pressed = SubResource( 1 )
+custom_styles/focus = SubResource( 1 )
+custom_styles/disabled = SubResource( 1 )
+custom_styles/normal = SubResource( 1 )
 toggle_mode = true
 enabled_focus_mode = 0
 
@@ -476,7 +478,7 @@ margin_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 20, 20 )
-custom_styles/panel = SubResource( 3 )
+custom_styles/panel = SubResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -489,11 +491,11 @@ grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 40, 40 )
 focus_mode = 0
-custom_styles/hover = SubResource( 2 )
-custom_styles/pressed = SubResource( 2 )
-custom_styles/focus = SubResource( 2 )
-custom_styles/disabled = SubResource( 2 )
-custom_styles/normal = SubResource( 2 )
+custom_styles/hover = SubResource( 1 )
+custom_styles/pressed = SubResource( 1 )
+custom_styles/focus = SubResource( 1 )
+custom_styles/disabled = SubResource( 1 )
+custom_styles/normal = SubResource( 1 )
 toggle_mode = true
 enabled_focus_mode = 0
 
@@ -510,7 +512,7 @@ margin_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 20, 20 )
-custom_styles/panel = SubResource( 3 )
+custom_styles/panel = SubResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
@@ -524,11 +526,11 @@ grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 40, 40 )
 focus_mode = 0
-custom_styles/hover = SubResource( 2 )
-custom_styles/pressed = SubResource( 2 )
-custom_styles/focus = SubResource( 2 )
-custom_styles/disabled = SubResource( 2 )
-custom_styles/normal = SubResource( 2 )
+custom_styles/hover = SubResource( 1 )
+custom_styles/pressed = SubResource( 1 )
+custom_styles/focus = SubResource( 1 )
+custom_styles/disabled = SubResource( 1 )
+custom_styles/normal = SubResource( 1 )
 toggle_mode = true
 enabled_focus_mode = 0
 
@@ -545,7 +547,7 @@ margin_bottom = 10.0
 grow_horizontal = 2
 grow_vertical = 2
 rect_min_size = Vector2( 20, 20 )
-custom_styles/panel = SubResource( 3 )
+custom_styles/panel = SubResource( 2 )
 __meta__ = {
 "_edit_use_anchors_": false
 }
