@@ -153,7 +153,8 @@ if __name__ == "__main__":
                     accounts = DataBase.get_accounts()
                     for a in accounts.keys():
                         gather_profile_data(a,True)
-                        honeycomb_update(a)
+                        if sys.argv[1] == "no_db":
+                            honeycomb_update(a)
                     timeoffset = 10
                 else:
                     if uptime % 2400 == 0:
@@ -165,7 +166,8 @@ if __name__ == "__main__":
                         accounts = DataBase.get_accounts()
                         for a in accounts.keys():
                             gather_profile_data(a,True)
-                            honeycomb_update(a)
+                            if sys.argv[1] == "no_db":
+                                honeycomb_update(a)
             time.sleep(timeoffset)
        
     except KeyboardInterrupt:
