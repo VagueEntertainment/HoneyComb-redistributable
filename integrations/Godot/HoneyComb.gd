@@ -167,16 +167,17 @@ func set_location():
 			
 
 func launch_service():
-	var dir1 = Directory.new()
-	print("checking, "+rootdir+"HoneyComb-redistributable/service/")
-	if	dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"):
-		print("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
-		pid = OS.execute(rootdir+"HoneyComb-redistributable/service/honeycomb.py",[],false,[])
-	elif dir1.dir_exists("./HoneyComb-redistributable/service/"):
-		print("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
-		pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
-	else:
-		print("No suitible service found")
+	if connectionType != -1:
+		var dir1 = Directory.new()
+		print("checking, "+rootdir+"HoneyComb-redistributable/service/")
+		if	dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"):
+			print("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
+			pid = OS.execute(rootdir+"HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+		elif dir1.dir_exists("./HoneyComb-redistributable/service/"):
+			print("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
+			pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
+		else:
+			print("No suitible service found")
 	pass
 	
 func check_for_wallet():
