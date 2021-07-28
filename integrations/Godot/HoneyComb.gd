@@ -29,7 +29,7 @@ func _ready():
 	while num < len(exepath) -1:
 		rootdir += exepath[num]+"/"
 		num +=1
-	print(rootdir)
+	print_debug(rootdir)
 		
 	websocket.connect("connection_closed", self, "_closed")
 	websocket.connect("connection_error", self, "_closed")
@@ -45,11 +45,11 @@ func _process(_delta):
 func _closed(was_clean = false):
 	# was_clean will tell you if the disconnection was correctly notified
 	# by the remote peer before closing the socket.
-	print("Closed, clean: ", was_clean)
+	print_debug("Closed, clean: ", was_clean)
 	emit_signal("honeycomb_returns","service",["stopped"])
 	#pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 	launch_service()
-	#print(pid)
+	#print_debug(pid)
 	if $service_check.is_stopped():
 		$service_check.wait_time +=2
 		$service_check.start()
@@ -58,7 +58,7 @@ func _closed(was_clean = false):
 func _connected(proto = ""):
 	# This is called on connection, "proto" will be the selected WebSocket
 	# sub-protocol (which is optional)
-	print("Connected with protocol: ", proto)
+	print_debug("Connected with protocol: ", proto)
 	# You MUST always use get_peer(1).put_packet to send data to server,
 	# and not put_packet directly when not using the MultiplayerAPI.
 	#websocket.get_peer(1).put_packet("Test packet".to_utf8())
@@ -72,10 +72,10 @@ func _on_data():
 	# using the MultiplayerAPI.
 	var data = websocket.get_peer(1).get_packet()
 	var parse_utf8 = data.get_string_from_utf8()
-	#print("Got data from server: ", data)
+	#print_debug("Got data from server: ", data)
 	if len(parse_utf8) > 0:
 		var jsoned = parse_json(parse_utf8)
-		#print(jsoned.keys())
+		#print_debug(jsoned.keys())
 		match jsoned["honeycomb"]["type"]:
 			"check":
 				emit_signal("honeycomb_returns","service",["running"])
@@ -111,12 +111,12 @@ func _on_data():
 				emit_signal("honeycomb_returns",jsoned["honeycomb"]["type"],[parse_utf8])
 
 func websocket_returns(_data):
-	print("websocket did something")
-	print(websocket.poll())
+	print_debug("websocket did something")
+	print_debug(websocket.poll())
 	pass
 	
 func check_for_service():
-	#print("Checking for service")
+	#print_debug("Checking for service")
 	match connectionType:
 		1:
 			var check = HTTPRequest.new()
@@ -126,10 +126,10 @@ func check_for_service():
 			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg={"act":["check_settings"]}')
 		2:
 			websocket.set_buffers(1048576,1048576,1048576,1048576)
-			print("Using Web Sockets")
+			print_debug("Using Web Sockets")
 			var err = websocket.connect_to_url("ws://0.0.0.0:8001")
 			if err !=OK:
-				 print("Unable to connect")
+				 print_debug("Unable to connect")
 				 #set_process(false)
 				 connectionType = 1
 	
@@ -169,15 +169,15 @@ func set_location():
 func launch_service():
 	if connectionType != -1:
 		var dir1 = Directory.new()
-		print("checking, "+rootdir+"HoneyComb-redistributable/service/")
+		print_debug("checking, "+rootdir+"HoneyComb-redistributable/service/")
 		if	dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"):
-			print("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
+			print_debug("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
 			pid = OS.execute(rootdir+"HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 		elif dir1.dir_exists("./HoneyComb-redistributable/service/"):
-			print("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
+			print_debug("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
 			pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 		else:
-			print("No suitible service found")
+			print_debug("No suitible service found")
 	pass
 	
 func check_for_wallet():
@@ -265,7 +265,7 @@ func add_account(account,keys):
 	match connectionType:
 		1:
 			if keys.has("posting") and keys.has("active"):
-				print("Keys are in order")
+				print_debug("Keys are in order")
 				var check = HTTPRequest.new()
 				check.set_timeout(10)
 				add_child(check)
@@ -273,7 +273,7 @@ func add_account(account,keys):
 				check.request("http://0.0.0.0:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if keys.has("posting") and keys.has("active"):
-				print("Keys are in order")
+				print_debug("Keys are in order")
 				if websocket_transfer:
 					websocket_transfer.put_packet(to_json(msg).to_utf8())
 
@@ -388,7 +388,7 @@ func cache_img(img):
 		}
 	var ImageType = img.split(".",-1)
 	
-	#print(ImageType)
+	#print_debug(ImageType)
 	
 	var check = HTTPRequest.new()
 	check.set_timeout(10)
@@ -423,7 +423,7 @@ func claim_hive_rewards(account = settings["hiveaccount"]):
 	pass
 
 func load_wallet(account = settings["hiveaccount"]):
-	print("from Load wallet ",account)
+	print_debug("from Load wallet ",account)
 	var msg = {
 		"act":["get_account","get_from_hive","get_from_hive_engine"],
 		"account":account,
@@ -721,12 +721,12 @@ func set_hive_engine_tokens(data):
 	hive_engine_tokens = parse_json(data)["honeycomb"]["hive_engine"]["tokens"]
 
 func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,request_type,object):
-	#print(response_code," ",request_type)
+	#print_debug(response_code," ",request_type)
 	if response_code == 0:
 		if request_type == "check":
 			emit_signal("honeycomb_returns","service",["stopped"])
 			var d = Directory.new()
-			print(d.get_current_dir())
+			print_debug(d.get_current_dir())
 			#pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 			launch_service()
 			if $service_check.is_stopped():
@@ -791,9 +791,9 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 
 
 func _on_service_check_timeout():
-	
-	print("checking for service")
-	check_for_service()
+	if !connectionType -1:
+		print_debug("checking for service")
+		check_for_service()
 	pass # Replace with function body.
 
 func show_login():
@@ -807,7 +807,7 @@ func unlock_wallet():
 	$WalletUnlock.show()
 
 func shutdown_service():
-	print("Shutting down ",pid)
+	print_debug("Shutting down ",pid)
 	if pid != null:
 		var msg = {
 		"act":["shutdown_service"],
