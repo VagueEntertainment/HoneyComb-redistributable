@@ -29,7 +29,7 @@ func _ready():
 	while num < len(exepath) -1:
 		rootdir += exepath[num]+"/"
 		num +=1
-	print_debug(rootdir)
+	#print_debug(rootdir)
 		
 	websocket.connect("connection_closed", self, "_closed")
 	websocket.connect("connection_error", self, "_closed")
@@ -49,7 +49,7 @@ func _closed(was_clean = false):
 	emit_signal("honeycomb_returns","service",["stopped"])
 	#pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 	launch_service()
-	#print_debug(pid)
+	print_debug(pid)
 	if $service_check.is_stopped():
 		$service_check.wait_time +=2
 		$service_check.start()
@@ -116,7 +116,7 @@ func websocket_returns(_data):
 	pass
 	
 func check_for_service():
-	#print_debug("Checking for service")
+	print_debug("Checking for service")
 	match connectionType:
 		1:
 			var check = HTTPRequest.new()
@@ -132,6 +132,8 @@ func check_for_service():
 				 print_debug("Unable to connect")
 				 #set_process(false)
 				 connectionType = 1
+			else:
+				print_debug("Connected to web socket")
 	
 func check_client_registration(account):
 	var msg = {
@@ -178,6 +180,7 @@ func launch_service():
 			pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 		else:
 			print_debug("No suitible service found")
+		$service_check.start()
 	pass
 	
 func check_for_wallet():
@@ -791,7 +794,7 @@ func _on_HTTPRequest_request_completed(_result, response_code, _headers, body,re
 
 
 func _on_service_check_timeout():
-	if !connectionType -1:
+	if connectionType != -1:
 		print_debug("checking for service")
 		check_for_service()
 	pass # Replace with function body.
