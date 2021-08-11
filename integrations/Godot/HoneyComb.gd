@@ -20,6 +20,8 @@ var passphrase = ""
 var pid 
 var dir = Directory.new()
 var rootdir = ""
+var http_url = "http://0.0.0.0:9500"
+var websocket_url = "ws://0.0.0.0:9501"
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	preflight()
@@ -123,11 +125,11 @@ func check_for_service():
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["check",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg={"act":["check_settings"]}')
+			check.request("http://127.0.0.1:9500/",[],false,HTTPClient.METHOD_POST,'msg={"act":["check_settings"]}')
 		2:
 			websocket.set_buffers(1048576,1048576,1048576,1048576)
 			print_debug("Using Web Sockets")
-			var err = websocket.connect_to_url("ws://0.0.0.0:8001")
+			var err = websocket.connect_to_url(websocket_url)
 			if err !=OK:
 				 print_debug("Unable to connect")
 				 #set_process(false)
@@ -147,7 +149,7 @@ func check_client_registration(account):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["check_registration",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			websocket_transfer.put_packet(to_json(msg).to_utf8())
 	
@@ -163,7 +165,7 @@ func set_location():
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["location",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			websocket_transfer.put_packet(to_json(msg).to_utf8())
 			
@@ -194,7 +196,7 @@ func check_for_wallet():
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet_exists",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -212,7 +214,7 @@ func create_wallet(passphrase):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["create_wallet",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -229,7 +231,7 @@ func get_settings():
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["get_settings",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -247,7 +249,7 @@ func set_settings(passphrase):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["save_settings",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -273,7 +275,7 @@ func add_account(account,keys):
 				check.set_timeout(10)
 				add_child(check)
 				check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["add_account",check])
-				check.request("http://0.0.0.0:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+				check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if keys.has("posting") and keys.has("active"):
 				print_debug("Keys are in order")
@@ -291,7 +293,7 @@ func list_accounts():
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["get_accounts",check])
-			check.request("http://0.0.0.0:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -354,7 +356,7 @@ func get_nft(source,app,account,opts = []):
 					message = 'msg='+to_json(command)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",[app,check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,message)
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,message)
 		2:
 			if source == "hive-engine":
 				if app == "nftshowroom":
@@ -399,13 +401,13 @@ func cache_img(img):
 	add_child(check)
 	var fullurl = 'msg='+to_json(msg)
 	check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["cache"+str(img),check])
-	check.request("http://0.0.0.0:8000/",[],true,HTTPClient.METHOD_POST,fullurl)
+	check.request(http_url,[],true,HTTPClient.METHOD_POST,fullurl)
 
 	pass
 	
 ### Hive General Functions
 
-func claim_hive_rewards(account = settings["hiveaccount"]):
+func claim_hive_rewards(account = ""):
 	var msg = {
 				"act":["claim_hive_rewards"],
 				"account":account,
@@ -418,7 +420,7 @@ func claim_hive_rewards(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["claim_hive_rewards",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg=')
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg=')
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -440,7 +442,7 @@ func load_wallet(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -461,7 +463,7 @@ func get_followers(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["followers",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -483,7 +485,7 @@ func get_following(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["following",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg=')
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg=')
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -503,7 +505,7 @@ func get_profile(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["profile",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -525,7 +527,7 @@ func get_from_hive(type,account):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_"+type,check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -547,7 +549,7 @@ func hive_get_vp(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_vp",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -569,7 +571,7 @@ func hive_get_RC(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rc",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -589,7 +591,7 @@ func hive_get_delegation(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_delegation",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -611,7 +613,7 @@ func get_balance(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_balances",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -631,7 +633,7 @@ func hive_get_rewards(account = settings["hiveaccount"]):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_rewards",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -649,7 +651,7 @@ func hive_get_dynamic_props():
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_dynamic_props",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -671,7 +673,7 @@ func get_history(author,history_type,return_type = "history"):
 			check.set_timeout(10)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",[return_type,check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -693,7 +695,7 @@ func get_hive_engine_tokens():
 			check.set_timeout(2)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_tokens",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -713,7 +715,7 @@ func get_hive_engine_balance(account = settings["hiveaccount"]):
 			check.set_timeout(2)
 			add_child(check)
 			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_balance",check])
-			check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 		2:
 			if websocket_transfer:
 				websocket_transfer.put_packet(to_json(msg).to_utf8())
@@ -823,7 +825,7 @@ func shutdown_service():
 				check.set_timeout(2)
 				add_child(check)
 				check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["hive_engine_balance",check])
-				check.request("http://127.0.0.1:8000/",[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+				check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
 			2:
 				if websocket_transfer:
 					websocket_transfer.put_packet(to_json(msg).to_utf8())
