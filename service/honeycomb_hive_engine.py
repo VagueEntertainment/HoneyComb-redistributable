@@ -36,8 +36,8 @@ def get_nftshowroom_art(accountname,col_type):
         with requests.get(url+a["properties"]["artSeries"]) as r:
             data = r.json()
             for col in col_type:
-                print(col)
-                print(data)
+                #print(col)
+                #print(data)
                 if "gallery" == col:
                     if data["creator"] == accountname:
                         returns.append(data)

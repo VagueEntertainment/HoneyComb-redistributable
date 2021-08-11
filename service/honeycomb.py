@@ -140,8 +140,8 @@ try:
        time.sleep(timeoffset)
        
 except KeyboardInterrupt:
-        #os.kill(HTML_PROCESS,signal.SIGKILL)
-        #os.kill(WebSocket_PROCESS,signal.SIGKILL)
+        os.kill(HTML_PROCESS,signal.SIGKILL)
+        os.kill(WebSocket_PROCESS,signal.SIGKILL)
         sys.exit()
         
 
