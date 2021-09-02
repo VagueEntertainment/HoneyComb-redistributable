@@ -414,20 +414,21 @@ func claim_hive_rewards(account = ""):
 				"opts":["all"],
 				"type":"claim_hive_rewards"
 				}
-	match connectionType:
-		1:
-			var check = HTTPRequest.new()
-			check.set_timeout(10)
-			add_child(check)
-			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["claim_hive_rewards",check])
-			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg=')
-		2:
-			if websocket_transfer:
-				websocket_transfer.put_packet(to_json(msg).to_utf8())
-			pass
+	if account != "":
+		match connectionType:
+			1:
+				var check = HTTPRequest.new()
+				check.set_timeout(10)
+				add_child(check)
+				check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["claim_hive_rewards",check])
+				check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg=')
+			2:
+				if websocket_transfer:
+					websocket_transfer.put_packet(to_json(msg).to_utf8())
+				pass
 	pass
 
-func load_wallet(account = settings["hiveaccount"]):
+func load_wallet(account = ""):
 	print_debug("from Load wallet ",account)
 	var msg = {
 		"act":["get_account","get_from_hive","get_from_hive_engine"],
@@ -436,17 +437,18 @@ func load_wallet(account = settings["hiveaccount"]):
 		"opts": [],
 		"type":"wallet"
 	}
-	match connectionType:
-		1:
-			var check = HTTPRequest.new()
-			check.set_timeout(10)
-			add_child(check)
-			check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet",check])
-			check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
-		2:
-			if websocket_transfer:
-				websocket_transfer.put_packet(to_json(msg).to_utf8())
-			pass
+	if account != "":
+		match connectionType:
+			1:
+				var check = HTTPRequest.new()
+				check.set_timeout(10)
+				add_child(check)
+				check.connect("request_completed",self,"_on_HTTPRequest_request_completed",["wallet",check])
+				check.request(http_url,[],false,HTTPClient.METHOD_POST,'msg='+to_json(msg))
+			2:
+				if websocket_transfer:
+					websocket_transfer.put_packet(to_json(msg).to_utf8())
+				pass
 	pass
 
 func get_followers(account = settings["hiveaccount"]):
