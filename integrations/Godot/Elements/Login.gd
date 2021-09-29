@@ -14,8 +14,14 @@ signal current_change(view)
 var account = ""
 var postingkey = ""
 var activekey = ""
+
+var WindowHeight
+var WindowWidth
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	WindowHeight = OS.get_window_size().y
+	WindowWidth = OS.get_window_size().x
 	HoneyComb.connect("honeycomb_returns",self,"_on_honeycomb_returns")
 	page1 = $NewAccountWizard/VBoxContainer/HBoxContainer/Page1
 	page2 = $NewAccountWizard/VBoxContainer/HBoxContainer/Page2
@@ -28,6 +34,13 @@ func _ready():
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if WindowHeight != OS.get_window_size().y or WindowWidth != OS.get_window_size().x:
+		var scaleShiftY = OS.get_window_size().y / WindowHeight
+		var scaleShiftX =  OS.get_window_size().x / WindowWidth
+		self.rect_scale = Vector2(scaleShiftX,scaleShiftY)
+		self.rect_pivot_offset = Vector2(WindowWidth/2,WindowHeight/2)
+
+	
 	if currentpage == 0:
 		$NewAccountWizard/Control/Back.hide()
 	else:

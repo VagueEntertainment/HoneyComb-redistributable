@@ -1,10 +1,9 @@
-[gd_scene load_steps=12 format=2]
+[gd_scene load_steps=11 format=2]
 
 [ext_resource path="res://HoneyComb-redistributable/integrations/Godot/Elements/Login.gd" type="Script" id=1]
 [ext_resource path="res://HoneyComb-redistributable/shared/HIVE/logo/circle/circle_hive_black.png" type="Texture" id=2]
 [ext_resource path="res://HoneyComb-redistributable/shared/Fonts/liberation32-bold.tres" type="DynamicFont" id=3]
 [ext_resource path="res://HoneyComb-redistributable/shared/HoneyComb/HoneyComb_t1_transparent.png" type="Texture" id=4]
-[ext_resource path="res://HoneyComb-redistributable/shared/Fonts/liberation24-Bold.tres" type="DynamicFont" id=5]
 [ext_resource path="res://HoneyComb-redistributable/shared/HIVE/logo/circle/circle_hive_red.png" type="Texture" id=6]
 [ext_resource path="res://HoneyComb-redistributable/shared/Icons/window-close-symbolic.svg" type="Texture" id=7]
 [ext_resource path="res://HoneyComb-redistributable/shared/Icons/system-lock-screen-symbolic.svg" type="Texture" id=8]
@@ -32,9 +31,10 @@ corner_radius_bottom_left = 10
 [node name="Login" type="Control"]
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 script = ExtResource( 1 )
 __meta__ = {
-"_edit_lock_": true,
 "_edit_use_anchors_": false
 }
 
@@ -263,7 +263,7 @@ stretch_mode = 6
 margin_top = 220.0
 margin_right = 779.0
 margin_bottom = 248.0
-custom_fonts/font = ExtResource( 5 )
+custom_fonts/font = ExtResource( 9 )
 text = "Hive Account"
 align = 1
 

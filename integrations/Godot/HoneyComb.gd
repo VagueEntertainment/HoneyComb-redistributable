@@ -171,14 +171,15 @@ func set_location():
 			
 
 func launch_service():
+	print("Launching Service")
 	if connectionType != -1:
 		var dir1 = Directory.new()
-		print_debug("checking, "+rootdir+"HoneyComb-redistributable/service/")
+		#print_debug("checking, "+rootdir+"HoneyComb-redistributable/service/")
 		if	dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"):
-			print_debug("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
+		#print_debug("found with full path: ",dir1.dir_exists(rootdir+"HoneyComb-redistributable/service/"))
 			pid = OS.execute(rootdir+"HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 		elif dir1.dir_exists("./HoneyComb-redistributable/service/"):
-			print_debug("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
+		#	print_debug("found with relative path:",dir1.dir_exists("./HoneyComb-redistributable/service/"))
 			pid = OS.execute("./HoneyComb-redistributable/service/honeycomb.py",[],false,[])
 		else:
 			print_debug("No suitible service found")
